@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60" viewBox="0 0 200 60">
+  <rect x="1" y="1" width="198" height="58" rx="8" fill="none" stroke="#B9A98F" stroke-dasharray="4 4"/>
+  <text x="100" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#8A7C6B">OCX</text>
+</svg>
