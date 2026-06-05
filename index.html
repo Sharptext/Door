@@ -176,21 +176,19 @@
   .system-stage { position: relative; }
   .system-stage svg { width: 100%; height: auto; display: block; overflow: visible; }
 
-  /* SVG system */
-  .edge { stroke: var(--line-2); stroke-width: 1; fill: none; }
-  .edge.draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.6s ease forwards; }
-  .edge.route { stroke: var(--accent); stroke-width: 1.5; }
-  @keyframes draw { to { stroke-dashoffset: 0; } }
-  .node { fill: var(--paper); stroke: var(--ink); stroke-width: 1.4; }
-  .node.soft { stroke: var(--line-2); }
-  .node.know { stroke: var(--accent); stroke-width: 1.8; }
-  .node.key { fill: var(--accent); stroke: var(--accent); }
-  .pulse { animation: pulse 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-  @keyframes pulse { 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
+  /* SVG system (animated network) */
+  .sys-edge { stroke: #CDC6B6; stroke-width: 1; fill: none; }      /* faint static web */
+  .n { fill: var(--paper); stroke: #B0A998; stroke-width: 1.5; transition: stroke .45s ease, stroke-width .45s ease; }
+  .n.kn { stroke: var(--accent); stroke-width: 2.4; }              /* active "knowing" (hollow green) */
+  .n.dg { stroke: var(--accent); fill: var(--accent); }           /* active "doing" (filled green) */
+  .n.on { animation: nodepulse 2.4s ease-in-out infinite; }
+  @keyframes nodepulse { 0%,100%{ opacity:.85; } 50%{ opacity:1; } }
+  .trail { stroke: var(--accent); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .signal { fill: var(--accent); }
   .svg-label { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; fill: var(--muted); }
   /* paper outline so labels stay fully readable over the network lines */
   .svg-label.halo { paint-order: stroke; stroke: var(--paper); stroke-width: 5px; stroke-linejoin: round; }
-  .signal { fill: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { .n.on { animation: none; } }
 
   /* ---------- Lead-in prose ---------- */
   .lead-in { max-width: 760px; }
@@ -305,66 +303,15 @@
       </div>
 
       <div class="system-stage" aria-hidden="true">
-        <svg viewBox="0 0 460 460" role="img">
-          <title>A learning system: scattered knowing on the left routed through intermediate steps into a single resolved doing node on the right</title>
-
-          <!-- background web (soft) -->
-          <g>
-            <line class="edge draw" style="animation-delay:.05s" x1="60"  y1="215" x2="50"  y2="300" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.1s"  x1="50"  y1="300" x2="105" y2="360" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.15s" x1="60"  y1="215" x2="155" y2="205" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.2s"  x1="50"  y1="300" x2="155" y2="205" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.25s" x1="105" y1="360" x2="155" y2="205" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.3s"  x1="105" y1="360" x2="245" y2="300" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.35s" x1="155" y1="205" x2="245" y2="300" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.4s"  x1="245" y1="300" x2="330" y2="260" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.45s" x1="240" y1="175" x2="205" y2="110" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.5s"  x1="205" y1="110" x2="150" y2="95"  pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.55s" x1="150" y1="95"  x2="110" y2="140" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.6s"  x1="110" y1="140" x2="60"  y2="215" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.65s" x1="240" y1="175" x2="110" y2="140" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.7s"  x1="320" y1="140" x2="330" y2="260" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.75s" x1="330" y1="260" x2="380" y2="330" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.8s"  x1="330" y1="260" x2="395" y2="105" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.85s" x1="320" y1="140" x2="205" y2="110" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.9s"  x1="245" y1="300" x2="380" y2="330" pathLength="1"/>
-          </g>
-
-          <!-- designed route knowing -> doing (highlighted, climbing) -->
-          <path class="edge draw route" style="animation-delay:.95s"
-                d="M60,215 C100,212 130,208 155,205 C190,195 215,185 240,175 C275,162 295,150 320,140 C350,127 375,115 395,105"
-                pathLength="1"/>
-
-          <!-- surrounding soft nodes -->
-          <circle class="node soft pulse" style="animation-delay:.2s" cx="150" cy="95"  r="6"/>
-          <circle class="node soft pulse" style="animation-delay:.9s" cx="245" cy="300" r="6"/>
-          <circle class="node soft pulse" style="animation-delay:1.3s" cx="110" cy="140" r="6"/>
-          <circle class="node soft pulse" style="animation-delay:.5s" cx="330" cy="260" r="6"/>
-          <circle class="node soft pulse" style="animation-delay:1.6s" cx="380" cy="330" r="6"/>
-          <circle class="node soft pulse" style="animation-delay:1.1s" cx="205" cy="110" r="6"/>
-
-          <!-- intermediate route nodes -->
-          <circle class="node" cx="155" cy="205" r="9"/>
-          <circle class="node" cx="240" cy="175" r="9"/>
-          <circle class="node" cx="320" cy="140" r="9"/>
-
-          <!-- knowing cluster (highlighted, lower-left) -->
-          <circle class="node know" cx="60"  cy="215" r="9"/>
-          <circle class="node know" cx="50"  cy="300" r="9"/>
-          <circle class="node know" cx="105" cy="360" r="9"/>
-
-          <!-- doing node (highlighted, up top-right) -->
-          <circle class="node key" cx="395" cy="105" r="16"/>
-          <circle cx="395" cy="105" r="27" fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.32" class="pulse"/>
-
-          <!-- traveling signal: knowing -> doing (climbing) -->
-          <circle class="signal" r="4">
-            <animateMotion dur="4s" repeatCount="indefinite" begin="2s"
-              path="M60,215 C100,212 130,208 155,205 C190,195 215,185 240,175 C275,162 295,150 320,140 C350,127 375,115 395,105"/>
-          </circle>
-
-          <text class="svg-label halo" x="0" y="258">knowing</text>
-          <text class="svg-label halo" x="356" y="74">doing</text>
+        <!-- Animated network. Node positions and behavior live in the script at the bottom of the page. -->
+        <svg id="sys" viewBox="0 0 460 460" role="img">
+          <title>An animated learning network: a signal finds a wandering path from a highlighted knowing node to a doing node, drawing a green trail behind it, then a new pair lights up.</title>
+          <g id="sys-edges"></g>
+          <path id="sys-trail" class="trail" fill="none"></path>
+          <g id="sys-nodes"></g>
+          <circle id="sys-dot" class="signal" r="4.5" style="display:none"></circle>
+          <text id="sys-lblK" class="svg-label halo" style="display:none">knowing</text>
+          <text id="sys-lblD" class="svg-label halo" style="display:none">doing</text>
         </svg>
       </div>
     </div>
@@ -508,6 +455,146 @@
     el.classList.add('reveal');
     obs.observe(el);
   });
+
+  /* ----------------------------------------------------------------
+     Hero network animation.
+     A signal wanders a jagged path from one highlighted "knowing"
+     node to a "doing" node, painting a green trail behind it. When it
+     arrives, both fade back to gray and a new pair lights up.
+     Tweak NODES / EDGES below to reshape the network.
+  ---------------------------------------------------------------- */
+  (function () {
+    const svg = document.getElementById('sys');
+    if (!svg) return;
+    const NS = 'http://www.w3.org/2000/svg';
+
+    // Node positions (viewBox is 0 0 460 460)
+    const NODES = [
+      [60,215],[50,300],[105,360],[155,205],[240,175],[320,140],[395,105],
+      [150,95],[245,300],[110,140],[330,260],[380,330],[205,110]
+    ];
+    // Faint static web (pairs of node indices)
+    const EDGES = [
+      [0,1],[1,2],[0,3],[1,3],[2,3],[2,8],[3,8],[8,10],[4,12],[12,7],
+      [7,9],[9,0],[4,9],[5,10],[10,11],[10,6],[5,12],[8,11]
+    ];
+
+    const gEdges = svg.querySelector('#sys-edges');
+    const gNodes = svg.querySelector('#sys-nodes');
+    const trail  = svg.querySelector('#sys-trail');
+    const dot    = svg.querySelector('#sys-dot');
+    const lblK   = svg.querySelector('#sys-lblK');
+    const lblD   = svg.querySelector('#sys-lblD');
+
+    EDGES.forEach(([a,b]) => {
+      const l = document.createElementNS(NS,'line');
+      l.setAttribute('x1',NODES[a][0]); l.setAttribute('y1',NODES[a][1]);
+      l.setAttribute('x2',NODES[b][0]); l.setAttribute('y2',NODES[b][1]);
+      l.setAttribute('class','sys-edge');
+      gEdges.appendChild(l);
+    });
+    const circ = NODES.map(([x,y]) => {
+      const c = document.createElementNS(NS,'circle');
+      c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',7);
+      c.setAttribute('class','n');
+      gNodes.appendChild(c); return c;
+    });
+
+    const dist = (a,b) => Math.hypot(NODES[a][0]-NODES[b][0], NODES[a][1]-NODES[b][1]);
+    const easeInOut = t => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+
+    function placeLabel(el, i) {
+      const [x,y] = NODES[i];
+      const lx = Math.max(30, Math.min(430, x));
+      const ly = y > 70 ? y - 14 : y + 22;
+      el.setAttribute('x',lx); el.setAttribute('y',ly);
+      el.setAttribute('text-anchor','middle');
+      el.style.display = '';
+    }
+    function resetNodes() {
+      circ.forEach(c => { c.setAttribute('class','n'); c.setAttribute('r',7); });
+    }
+    function pickPair() {
+      let a,b,t=0;
+      do { a = Math.random()*NODES.length|0; b = Math.random()*NODES.length|0; t++; }
+      while ((a===b || dist(a,b) < 190) && t < 80);
+      return [a,b];
+    }
+    // Build a wandering, non-direct route through a few scattered nodes.
+    function buildRoute(ks,ke) {
+      const ax = NODES[ke][0]-NODES[ks][0], ay = NODES[ke][1]-NODES[ks][1];
+      const L = Math.hypot(ax,ay) || 1, ux = ax/L, uy = ay/L;
+      const proj = i => (NODES[i][0]-NODES[ks][0])*ux + (NODES[i][1]-NODES[ks][1])*uy;
+      let cand = [];
+      for (let i=0;i<NODES.length;i++){ if(i===ks||i===ke) continue; const p=proj(i); if(p>L*0.05 && p<L*0.95) cand.push(i); }
+      for (let i=cand.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [cand[i],cand[j]]=[cand[j],cand[i]]; }
+      let mid = cand.slice(0, 3 + (Math.random()*3|0));
+      mid.sort((a,b)=> proj(a)-proj(b));
+      for (let i=0;i<mid.length-1;i++){ if(Math.random()<0.5){ [mid[i],mid[i+1]]=[mid[i+1],mid[i]]; } }
+      return [ks, ...mid, ke];
+    }
+
+    let raf = null;
+    function cycle() {
+      const [ks,ke] = pickPair();
+      const route = buildRoute(ks,ke);
+      const d = 'M' + route.map(i => NODES[i][0]+','+NODES[i][1]).join(' L');
+      trail.setAttribute('d', d);
+      const L = trail.getTotalLength();
+      trail.style.transition = 'none';
+      trail.style.opacity = '1';
+      trail.setAttribute('stroke-dasharray', L + ' ' + (L+1));
+      trail.setAttribute('stroke-dashoffset', L);   // fully hidden ahead of the dot
+
+      resetNodes();
+      circ[ks].setAttribute('class','n on kn'); circ[ks].setAttribute('r',9);
+      circ[ke].setAttribute('class','n on dg'); circ[ke].setAttribute('r',10);
+      placeLabel(lblK, ks); placeLabel(lblD, ke);
+
+      dot.style.transition = 'none';
+      dot.style.opacity = '1';
+      dot.style.display = '';
+
+      const dur = Math.min(5200, Math.max(2800, L*7));
+      const t0 = performance.now();
+      function frame(now) {
+        let t = (now - t0)/dur; if (t>1) t = 1;
+        const cur = L * easeInOut(t);
+        const pt = trail.getPointAtLength(cur);
+        dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
+        trail.setAttribute('stroke-dashoffset', L - cur);  // reveal only where the dot has been
+        if (t < 1) raf = requestAnimationFrame(frame);
+        else finish(ks,ke);
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    function finish(ks,ke) {
+      setTimeout(() => {
+        trail.style.transition = 'opacity .6s ease'; trail.style.opacity = '0';
+        dot.style.transition = 'opacity .6s ease'; dot.style.opacity = '0';
+        circ[ks].setAttribute('class','n'); circ[ks].setAttribute('r',7);
+        circ[ke].setAttribute('class','n'); circ[ke].setAttribute('r',7);
+        lblK.style.display = 'none'; lblD.style.display = 'none';
+        setTimeout(cycle, 750);
+      }, 650);
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Static state: one knowing, one doing, full route drawn.
+      const ks = 0, ke = 6, route = buildRoute(ks,ke);
+      trail.setAttribute('d', 'M' + route.map(i => NODES[i][0]+','+NODES[i][1]).join(' L'));
+      const L = trail.getTotalLength();
+      trail.setAttribute('stroke-dasharray', L + ' ' + (L+1));
+      trail.setAttribute('stroke-dashoffset', 0); trail.style.opacity = '1';
+      circ[ks].setAttribute('class','n on kn'); circ[ks].setAttribute('r',9);
+      circ[ke].setAttribute('class','n on dg'); circ[ke].setAttribute('r',10);
+      const pt = trail.getPointAtLength(L);
+      dot.setAttribute('cx',pt.x); dot.setAttribute('cy',pt.y); dot.style.display = '';
+      placeLabel(lblK, ks); placeLabel(lblD, ke);
+    } else {
+      cycle();
+    }
+  })();
 </script>
 
 </body>
