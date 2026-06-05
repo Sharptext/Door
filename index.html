@@ -4,16 +4,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SharpText: Architecture for learning</title>
-<meta name="description" content="SharpText is a learning architecture consultancy. We design the whole system around learning so it changes what people do, closing the gap between knowing and doing.">
+<meta name="description" content="SharpText is a learning architecture consultancy. We design how learning is structured and connected so it shows up in what people can actually do, with the evidence to prove it.">
+<meta name="author" content="SharpText">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#205C43">
+<link rel="canonical" href="https://sharptext.org/">
 
+<!-- Icons & manifest -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="manifest" href="site.webmanifest">
+
+<!-- Social sharing (Open Graph + Twitter) -->
 <meta property="og:title" content="SharpText: Architecture for learning">
-<meta property="og:description" content="Learning architecture for organizations and institutions that need behavior to change, not just knowledge to be delivered.">
+<meta property="og:description" content="We design how learning connects so it shows up in what people can do, with the evidence to prove it.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://sharptext.org">
+<meta property="og:url" content="https://sharptext.org/">
+<meta property="og:site_name" content="SharpText">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://sharptext.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SharpText, architecture for learning. From knowing to doing.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SharpText: Architecture for learning">
+<meta name="twitter:description" content="We design how learning connects so it shows up in what people can do, with the evidence to prove it.">
+<meta name="twitter:image" content="https://sharptext.org/og-image.png">
 
+<!-- Fonts: preconnect first, then the stylesheet. Edit the families below to change type. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Space+Mono:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Structured data: helps search engines understand who SharpText is -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "SharpText",
+  "description": "Learning architecture consultancy. We design how learning is structured and connected so it shows up in what people can actually do, with the evidence to prove it.",
+  "url": "https://sharptext.org/",
+  "email": "learning@sharptext.org",
+  "founder": { "@type": "Person", "name": "Lucian Cosinschi", "sameAs": "https://www.linkedin.com/in/cosinschi/" },
+  "areaServed": "Worldwide",
+  "knowsAbout": ["Learning architecture", "Corporate L&D", "Higher education", "EdTech"]
+}
+</script>
 
 <style>
   :root {
@@ -21,7 +57,7 @@
     --paper-2: #ECE8DD;      /* slightly deeper panel */
     --ink: #15161B;          /* near-black */
     --ink-2: #181C19;        /* dark green-black section bg */
-    --muted: #6E6B62;        /* warm gray text */
+    --muted: #5C5950;        /* warm gray text (AA contrast on paper) */
     --line: #D5D0C3;         /* hairline */
     --line-2: #C4BEAF;       /* stronger hairline */
     --accent: #205C43;       /* deep pine green */
@@ -31,6 +67,23 @@
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+
+  /* Visible focus for keyboard users */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Skip link for screen-reader / keyboard users */
+  .skip {
+    position: absolute; left: 12px; top: -60px; z-index: 100;
+    background: var(--ink); color: var(--paper);
+    padding: 10px 16px; border-radius: 4px;
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    transition: top .2s;
+  }
+  .skip:focus { top: 12px; color: var(--paper); }
 
   body {
     margin: 0;
@@ -135,6 +188,8 @@
   .pulse { animation: pulse 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
   @keyframes pulse { 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
   .svg-label { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; fill: var(--muted); }
+  /* paper outline so labels stay fully readable over the network lines */
+  .svg-label.halo { paint-order: stroke; stroke: var(--paper); stroke-width: 5px; stroke-linejoin: round; }
   .signal { fill: var(--accent); }
 
   /* ---------- Lead-in prose ---------- */
@@ -199,13 +254,13 @@
   footer.site a { color: #BDB9AE; }
 
   /* ---------- Reveal ---------- */
-  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
-  .reveal.in { opacity: 1; transform: none; }
+  .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .js .reveal.in { opacity: 1; transform: none; }
 
   @media (prefers-reduced-motion: reduce) {
     .edge.draw { animation: none; stroke-dashoffset: 0; }
     .pulse { animation: none; opacity: .8; }
-    .reveal { opacity: 1; transform: none; transition: none; }
+    .reveal, .js .reveal { opacity: 1; transform: none; transition: none; }
   }
 
   /* ---------- Responsive ---------- */
@@ -226,6 +281,9 @@
 </style>
 </head>
 <body>
+<script>document.documentElement.className += ' js';</script>
+
+<a href="#top" class="skip">Skip to content</a>
 
 <header class="site">
   <div class="wrap">
@@ -252,60 +310,61 @@
 
           <!-- background web (soft) -->
           <g>
-            <line class="edge draw" style="animation-delay:.05s" x1="60"  y1="92"  x2="44"  y2="202" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.1s"  x1="44"  y1="202" x2="88"  y2="300" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.15s" x1="60"  y1="92"  x2="165" y2="150" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.2s"  x1="44"  y1="202" x2="165" y2="150" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.25s" x1="88"  y1="300" x2="165" y2="150" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.3s"  x1="88"  y1="300" x2="150" y2="338" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.35s" x1="150" y1="338" x2="235" y2="205" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.4s"  x1="165" y1="150" x2="210" y2="95"  pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.45s" x1="210" y1="95"  x2="300" y2="165" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.5s"  x1="210" y1="95"  x2="330" y2="92"  pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.55s" x1="330" y1="92"  x2="392" y2="250" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.6s"  x1="235" y1="205" x2="255" y2="325" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.65s" x1="255" y1="325" x2="360" y2="352" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.7s"  x1="360" y1="352" x2="392" y2="250" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.75s" x1="300" y1="165" x2="330" y2="92"  pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.8s"  x1="88"  y1="300" x2="118" y2="402" pathLength="1"/>
-            <line class="edge draw" style="animation-delay:.85s" x1="150" y1="338" x2="118" y2="402" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.05s" x1="60"  y1="215" x2="50"  y2="300" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.1s"  x1="50"  y1="300" x2="105" y2="360" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.15s" x1="60"  y1="215" x2="155" y2="205" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.2s"  x1="50"  y1="300" x2="155" y2="205" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.25s" x1="105" y1="360" x2="155" y2="205" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.3s"  x1="105" y1="360" x2="245" y2="300" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.35s" x1="155" y1="205" x2="245" y2="300" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.4s"  x1="245" y1="300" x2="330" y2="260" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.45s" x1="240" y1="175" x2="205" y2="110" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.5s"  x1="205" y1="110" x2="150" y2="95"  pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.55s" x1="150" y1="95"  x2="110" y2="140" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.6s"  x1="110" y1="140" x2="60"  y2="215" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.65s" x1="240" y1="175" x2="110" y2="140" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.7s"  x1="320" y1="140" x2="330" y2="260" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.75s" x1="330" y1="260" x2="380" y2="330" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.8s"  x1="330" y1="260" x2="395" y2="105" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.85s" x1="320" y1="140" x2="205" y2="110" pathLength="1"/>
+            <line class="edge draw" style="animation-delay:.9s"  x1="245" y1="300" x2="380" y2="330" pathLength="1"/>
           </g>
 
-          <!-- designed route knowing -> doing (highlighted) -->
-          <path class="edge draw route" style="animation-delay:.9s"
-                d="M60,92 C110,115 138,132 165,150 C200,172 215,190 235,205 C270,190 282,176 300,165 C340,193 366,224 392,250"
+          <!-- designed route knowing -> doing (highlighted, climbing) -->
+          <path class="edge draw route" style="animation-delay:.95s"
+                d="M60,215 C100,212 130,208 155,205 C190,195 215,185 240,175 C275,162 295,150 320,140 C350,127 375,115 395,105"
                 pathLength="1"/>
 
           <!-- surrounding soft nodes -->
-          <circle class="node soft pulse" style="animation-delay:.2s" cx="210" cy="95"  r="6"/>
-          <circle class="node soft pulse" style="animation-delay:.9s" cx="330" cy="92"  r="6"/>
-          <circle class="node soft pulse" style="animation-delay:1.3s" cx="150" cy="338" r="6"/>
-          <circle class="node soft pulse" style="animation-delay:.5s" cx="255" cy="325" r="6"/>
-          <circle class="node soft pulse" style="animation-delay:1.6s" cx="360" cy="352" r="6"/>
-          <circle class="node soft pulse" style="animation-delay:1.1s" cx="118" cy="402" r="6"/>
+          <circle class="node soft pulse" style="animation-delay:.2s" cx="150" cy="95"  r="6"/>
+          <circle class="node soft pulse" style="animation-delay:.9s" cx="245" cy="300" r="6"/>
+          <circle class="node soft pulse" style="animation-delay:1.3s" cx="110" cy="140" r="6"/>
+          <circle class="node soft pulse" style="animation-delay:.5s" cx="330" cy="260" r="6"/>
+          <circle class="node soft pulse" style="animation-delay:1.6s" cx="380" cy="330" r="6"/>
+          <circle class="node soft pulse" style="animation-delay:1.1s" cx="205" cy="110" r="6"/>
 
           <!-- intermediate route nodes -->
-          <circle class="node" cx="165" cy="150" r="9"/>
-          <circle class="node" cx="235" cy="205" r="9"/>
-          <circle class="node" cx="300" cy="165" r="9"/>
+          <circle class="node" cx="155" cy="205" r="9"/>
+          <circle class="node" cx="240" cy="175" r="9"/>
+          <circle class="node" cx="320" cy="140" r="9"/>
 
-          <!-- knowing cluster (highlighted) -->
-          <circle class="node know" cx="60" cy="92"  r="9"/>
-          <circle class="node know" cx="44" cy="202" r="9"/>
-          <circle class="node know" cx="88" cy="300" r="9"/>
+          <!-- knowing cluster (highlighted, lower-left) -->
+          <circle class="node know" cx="60"  cy="215" r="9"/>
+          <circle class="node know" cx="50"  cy="300" r="9"/>
+          <circle class="node know" cx="105" cy="360" r="9"/>
 
-          <!-- doing node (highlighted) -->
-          <circle class="node key" cx="392" cy="250" r="16"/>
-          <circle cx="392" cy="250" r="27" fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.32" class="pulse"/>
+          <!-- doing node (highlighted, up top-right) -->
+          <circle class="node key" cx="395" cy="105" r="16"/>
+          <circle cx="395" cy="105" r="27" fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.32" class="pulse"/>
 
-          <!-- traveling signal: knowing -> doing -->
+          <!-- traveling signal: knowing -> doing (climbing) -->
           <circle class="signal" r="4">
             <animateMotion dur="4s" repeatCount="indefinite" begin="2s"
-              path="M60,92 C110,115 138,132 165,150 C200,172 215,190 235,205 C270,190 282,176 300,165 C340,193 366,224 392,250"/>
+              path="M60,215 C100,212 130,208 155,205 C190,195 215,185 240,175 C275,162 295,150 320,140 C350,127 375,115 395,105"/>
           </circle>
 
-          <text class="svg-label" x="30" y="70">knowing</text>
-          <text class="svg-label" x="356" y="300">doing</text>
+          <text class="svg-label halo" x="0" y="258">knowing</text>
+          <text class="svg-label halo" x="356" y="74">doing</text>
         </svg>
       </div>
     </div>

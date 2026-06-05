@@ -6,8 +6,15 @@ A single-page static site. No build step, no dependencies — just `index.html`.
 
 - `index.html` — the whole site (copy + styling live here).
 - `assets/logos/` — partner logos shown in the "Partnered with these people" strip.
+- `og-image.png` — the preview image shown when the link is shared (LinkedIn, Slack, etc.). 1200×630.
+- `favicon.svg` — the little icon in the browser tab.
+- `404.html` — the page shown for a broken or missing link.
+- `robots.txt`, `sitemap.xml` — help search engines crawl and index the site.
+- `site.webmanifest` — basic app metadata (name, colors, icon).
 - `CNAME` — tells GitHub Pages to serve the site at sharptext.org. Don't delete it.
 - `.nojekyll` — stops GitHub from doing anything clever to the files.
+
+If you change the headline or the green, regenerate `og-image.png` so the share preview matches (just ask, or replace it with any 1200×630 image).
 
 ---
 
