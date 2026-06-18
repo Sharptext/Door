@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="SharpText">
+  <title>SharpText</title>
   <rect width="32" height="32" rx="7" fill="#205C43"/>
-  <line x1="9" y1="10" x2="17" y2="16" stroke="#F4F1E9" stroke-width="1.4" opacity="0.7"/>
-  <line x1="9" y1="22" x2="17" y2="16" stroke="#F4F1E9" stroke-width="1.4" opacity="0.7"/>
-  <line x1="17" y1="16" x2="24" y2="16" stroke="#F4F1E9" stroke-width="1.4"/>
-  <circle cx="9" cy="10" r="2" fill="none" stroke="#F4F1E9" stroke-width="1.4"/>
-  <circle cx="9" cy="22" r="2" fill="none" stroke="#F4F1E9" stroke-width="1.4"/>
-  <circle cx="17" cy="16" r="2.2" fill="none" stroke="#F4F1E9" stroke-width="1.4"/>
-  <circle cx="24" cy="16" r="3.4" fill="#F4F1E9"/>
+  <!-- sharptext "x" with the signature sharp blade rising to the upper right -->
+  <path d="M7.81 11.17 L20.41 23.97 L23.19 21.23 L10.59 8.43 Z" fill="#F4F1E9"/>
+  <path d="M10.58 23.98 L16.98 17.58 L14.22 14.82 L7.82 21.22 Z" fill="#F4F1E9"/>
+  <path d="M17.05 17.50 L21.95 12.30 L24.40 6.40 L19.05 9.70 L14.15 14.90 Z" fill="#F4F1E9"/>
 </svg>
