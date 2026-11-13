@@ -5,7 +5,6 @@ A single-page static site. No build step, no dependencies — just `index.html` 
 ## Files
 
 - `index.html` — the whole site (copy + styling live here).
-- `assets/logos/` — partner logos shown in the "Partnered with these people" strip.
 - `assets/brand/` — the logo. `st-logo.js` + `st-logo.css` are the one logo component used everywhere; `sharptext-symbol.svg` is the approved symbol artwork.
 - `og-image.png` — the preview image shown when the link is shared (LinkedIn, Slack, etc.). 1200×630.
 - `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` — browser and app icons.
@@ -80,13 +79,11 @@ The form uses [Formspree](https://formspree.io) (free tier). Right now it points
 
 If you'd rather not bother, the page also shows your email address as a fallback, so nothing breaks in the meantime.
 
-## 4. Swap in the real logos
+## 4. Add the partner logos
 
-`assets/logos/` currently holds dashed-box placeholders so the strip renders. Replace each file with the real logo, keeping the **same filename**:
+The "Partnered with these people" strip currently lists the partner names as text (the `<ul class="partners">` list in `index.html`), because only placeholder logo files existed. When you have the real logos, put them in `assets/logos/` and replace each `<li>Name</li>` with `<li><img src="assets/logos/name.svg" alt="Name" height="40"></li>`.
 
-- `zayed-university.svg`, `minerva-project.svg`, `edu.svg`, `mindcet.svg`, `minds-studio.svg`, `dohe.svg`, `ocx.svg`
-
-SVG or transparent PNG both work. Plain dark/mono logos look best — the page renders them in grayscale and brings them to full color on hover. If you use PNGs, just change the file extensions in `index.html` to match.
+SVG or transparent PNG both work. Plain dark or single-colour logos look best on this page.
 
 ---
 

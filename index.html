@@ -45,7 +45,7 @@
 <!-- Fonts: preconnect first, then the stylesheet. Edit the families below to change type. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
 <!-- Logo component (<st-logo>) -->
 <link rel="stylesheet" href="assets/brand/st-logo.css">
@@ -85,7 +85,7 @@
     --st-on-dark-line: #343940;   /* hairlines on ink */
 
     --st-font-display: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
-    --st-font-body: 'Inter', system-ui, sans-serif;
+    --st-font-body: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
 
     --max: 1180px;
   }
@@ -124,23 +124,6 @@
     overflow-x: hidden;
   }
 
-  /* Drafting grid backdrop */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background-image: linear-gradient(to right, rgba(22,25,29,0.045) 1px, transparent 1px);
-    background-size: calc(100% / 6) 100%;
-    background-position: center;
-    max-width: var(--max);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-  }
-  @media (max-width: 760px) { body::before { display: none; } }
-
   .wrap { max-width: var(--max); margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
 
   h1, h2, h3 {
@@ -149,24 +132,26 @@
     line-height: 1.06;
     letter-spacing: -0.022em;
     color: var(--st-ink);
+    text-wrap: balance;
   }
-  p { color: var(--st-muted); }
+  p { color: var(--st-muted); text-wrap: pretty; }
   a { color: var(--st-ink); text-decoration: none; transition: color .18s; }
   em { font-style: italic; }
 
   .mono {
     font-family: var(--st-font-display);
-    font-size: 12.5px;
-    letter-spacing: 0.12em;
+    font-size: 13.5px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--st-muted);
   }
 
-  .index { display: flex; align-items: center; gap: 16px; margin-bottom: 34px; }
-  .index .num { color: var(--st-thread); font-weight: 600; }
-  .index .bar { flex: 1; height: 1px; background: var(--st-line-strong); }
+  .index { margin: 0 0 26px; }
 
-  section { padding: 110px 0; position: relative; }
+  section { padding: 104px 0; position: relative; }
+  section.follow-on { padding-top: 80px; }    /* continues the previous section's argument */
+  section.logos { padding: 76px 0; }          /* a short strip, not a chapter */
+  section.contact { padding: 132px 0 120px; } /* the close: more room around it */
   section + section { border-top: 1px solid var(--st-line); }
 
   /* ---------- Header ---------- */
@@ -179,7 +164,7 @@
   header.site .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 18px; padding-bottom: 18px; }
   .brand { display: inline-flex; align-items: center; }
   .brand .st-logo { font-size: 24px; }
-  .nav-cta { font-family: var(--st-font-display); font-weight: 600; font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--st-ink); padding: 9px 16px; border-radius: 2px; color: var(--st-ink); transition: .2s; }
+  .nav-cta { font-family: var(--st-font-display); font-weight: 600; font-size: 13.5px; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--st-ink); padding: 9px 16px; border-radius: 2px; color: var(--st-ink); transition: .2s; }
   .nav-cta:hover { background: var(--st-ink); color: var(--st-paper); }
 
   /* ---------- Buttons ---------- */
@@ -208,14 +193,11 @@
   .n { fill: var(--st-paper); stroke: var(--st-node); stroke-width: 1.5; transition: stroke .45s ease, stroke-width .45s ease; }
   .n.kn { stroke: var(--st-thread); stroke-width: 2.4; }                     /* active "knowing" (hollow) */
   .n.dg { stroke: var(--st-thread); fill: var(--st-thread); }                /* active "doing" (filled) */
-  .n.on { animation: nodepulse 2.4s ease-in-out infinite; }
-  @keyframes nodepulse { 0%,100%{ opacity:.85; } 50%{ opacity:1; } }
   .trail { stroke: var(--st-thread); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .signal { fill: var(--st-thread); }
-  .svg-label { font-family: var(--st-font-display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; fill: var(--st-muted); }
+  .svg-label { font-family: var(--st-font-display); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; fill: var(--st-muted); }
   /* paper outline so labels stay fully readable over the network lines */
   .svg-label.halo { paint-order: stroke; stroke: var(--st-paper); stroke-width: 5px; stroke-linejoin: round; }
-  @media (prefers-reduced-motion: reduce) { .n.on { animation: none; } }
 
   /* ---------- Lead-in prose ---------- */
   .lead-in { max-width: 760px; }
@@ -228,7 +210,7 @@
   .card { padding: 38px 30px; border-right: 1px solid var(--st-line-strong); transition: background .2s; }
   .card:last-child { border-right: none; }
   .card:hover { background: var(--st-paper); }
-  .card .ci { color: var(--st-ink); font-weight: 600; }
+  .card .ci { color: var(--st-ink); font-weight: 600; letter-spacing: 0.04em; }
   .card h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.018em; margin: 14px 0 16px; }
   .card p { font-size: 16px; margin: 0; }
 
@@ -241,26 +223,20 @@
   .stop .rail { position: absolute; top: 6px; left: 0; right: 0; height: 1px; background: var(--st-line-strong); z-index: 1; }
   .stop:last-child .rail { right: 50%; }
   .stop h3 { font-size: 25px; font-weight: 600; letter-spacing: -0.018em; margin: 26px 0 6px; }
-  .stop .meta { font-family: var(--st-font-display); font-size: 12px; letter-spacing: 0.1em; color: var(--st-muted); text-transform: uppercase; }
+  .stop .meta { font-family: var(--st-font-display); font-size: 13.5px; letter-spacing: 0.08em; color: var(--st-muted); text-transform: uppercase; }
   .stop p { font-size: 16px; margin: 16px 0 0; padding-right: 24px; }
 
   /* ---------- Logos ---------- */
   .logos { text-align: center; }
-  .logos .index { justify-content: center; max-width: 620px; margin-left:auto; margin-right:auto; }
-  .logos h2 { font-family: var(--st-font-display); font-weight: 400; font-size: clamp(22px,3vw,30px); color: var(--st-ink); max-width: 620px; margin: 0 auto 48px; }
-  .logo-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 30px 52px; }
-  .logo-grid img { height: 44px; width: auto; max-width: 160px; object-fit: contain; filter: grayscale(1); opacity: .62; transition: .2s; }
-  .logo-grid img:hover { opacity: 1; filter: grayscale(0); }
+  .logos h2 { font-family: var(--st-font-display); font-weight: 400; font-size: clamp(22px,3vw,30px); color: var(--st-ink); max-width: 620px; margin: 0 auto 36px; }
+  /* Partner names set in type until real logo files are supplied (see README) */
+  .partners { list-style: none; margin: 0 auto; padding: 0; max-width: 860px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 44px; }
+  .partners li { font-family: var(--st-font-display); font-weight: 600; font-size: clamp(19px, 2.2vw, 23px); letter-spacing: -0.015em; color: var(--st-muted); }
 
   /* ---------- Contact (dark surface) ---------- */
   .contact { background: var(--st-ink); color: var(--st-paper-warm); border-top: none; }
-  .contact::before { content:""; position:absolute; inset:0; pointer-events:none;
-    background-image: linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px);
-    background-size: calc(100% / 6) 100%; max-width: var(--max); left:50%; transform: translateX(-50%); width:100%; }
   .contact .wrap { z-index: 2; }
-  .contact .index .bar { background: rgba(255,255,255,0.18); }
   .contact .mono { color: var(--st-on-dark-muted); }
-  .contact .index .num { color: var(--st-thread-on-dark); }
   .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
   .contact h2 { color: var(--st-paper-warm); font-size: clamp(32px,4.3vw,50px); font-weight: 400; max-width: 520px; }
   .contact .lede { color: var(--st-on-dark-muted); font-size: 19px; max-width: 480px; margin: 22px 0 0; }
@@ -268,7 +244,7 @@
   .contact .alt a { color: var(--st-paper-warm); border-bottom: 1px solid rgba(245,244,240,0.4); transition: color .18s, border-color .18s; }
   .contact .alt a:hover { color: var(--st-thread-on-dark); border-bottom-color: var(--st-thread-on-dark); }
   form { display: grid; gap: 18px; }
-  form label { font-family: var(--st-font-display); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--st-on-dark-muted); display:block; margin-bottom: 8px; }
+  form label { font-family: var(--st-font-display); font-size: 14.5px; color: var(--st-on-dark-muted); display:block; margin-bottom: 8px; }
   form input, form textarea { width:100%; background: transparent; border:none; border-bottom: 1px solid #4A4F57; color: var(--st-paper); font-family: inherit; font-size: 17px; padding: 8px 2px; transition: border-color .2s; }
   form input:focus, form textarea:focus { outline:none; border-color: var(--st-thread-on-dark); }
   form textarea { resize: vertical; min-height: 70px; }
@@ -287,6 +263,7 @@
   /* ---------- Reveal ---------- */
   .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
   .js .reveal.in { opacity: 1; transform: none; }
+  @media print { .js .reveal { opacity: 1; transform: none; } }
 
   @media (prefers-reduced-motion: reduce) {
     .edge.draw { animation: none; stroke-dashoffset: 0; }
@@ -308,6 +285,9 @@
   @media (max-width: 760px) {
     .wrap { padding: 0 22px; }
     section { padding: 76px 0; }
+    section.follow-on { padding-top: 60px; }
+    section.logos { padding: 60px 0; }
+    section.contact { padding: 92px 0 84px; }
     .brand .st-logo { font-size: 19px; }
   }
 </style>
@@ -341,7 +321,7 @@
       <div class="system-stage" aria-hidden="true">
         <!-- Animated network. Node positions and behavior live in the script at the bottom of the page. -->
         <svg id="sys" viewBox="0 0 460 460" role="img">
-          <title>An animated learning network: a signal finds a wandering path from a highlighted knowing node to a doing node, drawing a red thread behind it, then a new pair lights up.</title>
+          <title>An animated learning network: a signal finds a wandering path from a highlighted knowing node to a doing node, drawing a red thread behind it that stays in place.</title>
           <g id="sys-edges"></g>
           <path id="sys-trail" class="trail" fill="none"></path>
           <g id="sys-nodes"></g>
@@ -353,43 +333,41 @@
     </div>
   </section>
 
-  <!-- 01 THE PROBLEM -->
+  <!-- THE PROBLEM -->
   <section class="panel">
     <div class="wrap lead-in">
-      <div class="index"><span class="mono num">01</span><span class="mono">The problem</span><span class="bar"></span></div>
       <h2>The problem isn't the teaching, delivery or content. It's that the pieces don't connect.</h2>
       <p>Organizations and institutions spend enormous resources on learning that never shows up where it counts. People go through the program, understand the idea, and then very little changes in what they can actually do.</p>
-      <p>It's rarely a content problem. Learning gets built one piece at a time, by different people, for different reasons, and the pieces don't line up. What someone learns on Monday isn't reinforced by their manager, their tools, their other courses, or the way the work is structured, so it fades. And almost no one can show, with evidence, that any of it changed what people can do.</p>
+      <p>Learning gets built one piece at a time, by different people, for different reasons, and the pieces don't line up. What someone learns on Monday isn't reinforced by their manager, their tools, their other courses, or the way the work is structured, so it fades. And almost no one can show, with evidence, that any of it changed what people can do.</p>
       <p>So it's really two problems: the pieces don't connect, and no one can prove they worked. Most teams treat both as something to sort out after the learning is already built.</p>
     </div>
   </section>
 
-  <!-- 02 THE APPROACH -->
-  <section>
+  <!-- THE APPROACH -->
+  <section class="follow-on">
     <div class="wrap lead-in">
-      <div class="index"><span class="mono num">02</span><span class="mono">The approach</span><span class="bar"></span></div>
       <h2>What is learning architecture</h2>
       <p>Learning architecture is the deliberate design of how learning is structured and connected in context, so the pieces build on each other, line up with real goals, and show up in what people can actually <em>do</em>. It starts from a different question. Not "what should people know?" but "what do we need people to be able to do, and what has to be true for that to happen?"</p>
       <p>That means designing across the things a single course can't control: whether people are motivated, what the people and systems around them reward or push back on, whether the work or the curriculum leaves room for the new way of doing things, and what gets measured, since what isn't measured rarely gets defended. It also means knowing where the old habits are anchored, and what it takes to shift them.</p>
-      <p>Get those right and the learning has somewhere to land, and you can show it landed. It's closer to strategy and systems design than to building a course, and the goal was never a better course anyway. It's a real, visible change in what people can do.</p>
+      <p>Get those right and the learning has somewhere to land, and you can show it landed. It's closer to strategy and systems design than to building a course. The goal is a real, visible change in what people can do.</p>
     </div>
   </section>
 
-  <!-- 03 AUDIENCES -->
+  <!-- AUDIENCES -->
   <section class="panel">
     <div class="wrap">
-      <div class="index"><span class="mono num">03</span><span class="mono">Who this is for</span><span class="bar"></span></div>
+      <p class="mono index">Who this is for</p>
       <div class="lead-in"><h2>Three kinds of people keep finding their way here.</h2></div>
       <div class="cards">
         <div class="card">
           <span class="mono ci">A</span>
           <h3>Corporate L&amp;D</h3>
-          <p>Heads of learning and capability who want a seat at the strategic table are tired of reporting completions that prove nothing. The pressure now is to show that training moves performance, and the business numbers tied to it. We connect what people learn to the capabilities the work actually demands, so it shows up on the job, in retention, leadership and productivity, not just the completion report.</p>
+          <p>Heads of learning and capability who want a seat at the strategic table are tired of reporting completions that prove nothing. The pressure now is to show that training moves performance, and the business numbers tied to it. We connect what people learn to the capabilities the work actually demands, so it shows up on the job: in retention, leadership and productivity.</p>
         </div>
         <div class="card">
           <span class="mono ci">B</span>
           <h3>EdTech Founders &amp; Investors</h3>
-          <p>Founders and the investors behind them, facing buyers who now want efficacy, not just screenshots of engagement. Your dashboard may show usage, and that's a good first step; it doesn't prove learning happened. We build the layer that links what learners do to outcomes for users and customers you can measure and defend at renewal. This evidence turns adoption into proof the product works, at scale.</p>
+          <p>Founders and the investors behind them, facing buyers who now want evidence of efficacy. Your dashboard may show usage, and that's a good first step; it doesn't prove learning happened. We build the layer that links what learners do to outcomes for users and customers you can measure and defend at renewal. This evidence turns adoption into proof the product works, at scale.</p>
         </div>
         <div class="card">
           <span class="mono ci">C</span>
@@ -400,10 +378,10 @@
     </div>
   </section>
 
-  <!-- 04 TIERS -->
+  <!-- TIERS -->
   <section>
     <div class="wrap">
-      <div class="index"><span class="mono num">04</span><span class="mono">How we work</span><span class="bar"></span></div>
+      <p class="mono index">How we work</p>
       <div class="lead-in"><h2>Three ways in, depending on how far you want to go.</h2><p>Most people start small. The first conversation costs nothing and is useful on its own.</p></div>
       <div class="tiers">
         <div class="axis">
@@ -433,23 +411,21 @@
   <!-- LOGOS -->
   <section class="panel logos">
     <div class="wrap">
-      <div class="index"><span class="mono num">05</span><span class="mono">In good company</span><span class="bar"></span></div>
       <h2>Partnered with these people to advance learning</h2>
-      <div class="logo-grid">
-        <img src="assets/logos/zayed-university.svg" alt="Zayed University">
-        <img src="assets/logos/minerva-project.svg" alt="Minerva Project">
-        <img src="assets/logos/edu.svg" alt="EDU">
-        <img src="assets/logos/mindcet.svg" alt="MindCET">
-        <img src="assets/logos/dohe.svg" alt="DOHE">
-        <img src="assets/logos/ocx.svg" alt="OCX">
-      </div>
+      <ul class="partners">
+        <li>Zayed University</li>
+        <li>Minerva Project</li>
+        <li>EDU</li>
+        <li>MindCET</li>
+        <li>DOHE</li>
+        <li>OCX</li>
+      </ul>
     </div>
   </section>
 
   <!-- CONTACT -->
   <section class="contact" id="talk">
     <div class="wrap">
-      <div class="index"><span class="mono num">06</span><span class="mono">Let's talk</span><span class="bar"></span></div>
       <div class="contact-grid">
         <div>
           <h2>Let's talk about what your learning is meant to do.</h2>
@@ -464,7 +440,7 @@
             <div><label for="org">Organization</label><input type="text" id="org" name="organization"></div>
             <div><label for="message">What's the learning meant to change?</label><textarea id="message" name="message"></textarea></div>
             <input type="hidden" name="_subject" value="Learning Architecture Conversation: new enquiry">
-            <button type="submit" class="btn">Book a Learning Architecture Conversation <span class="arr">&rarr;</span></button>
+            <button type="submit" class="btn">Send <span class="arr">&rarr;</span></button>
           </form>
         </div>
       </div>
@@ -486,20 +462,26 @@
 </footer>
 
 <script>
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('section .wrap > *').forEach((el) => {
-    if (el.closest('.hero')) return;
-    el.classList.add('reveal');
-    obs.observe(el);
-  });
+  // Fade sections in on scroll. Content is visible by default: it is only hidden
+  // when the observer exists to show it again, and everything shows for printing.
+  if ('IntersectionObserver' in window) {
+    const showAll = () => document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('section .wrap > *').forEach((el) => {
+      if (el.closest('.hero')) return;
+      el.classList.add('reveal');
+      obs.observe(el);
+    });
+    window.addEventListener('beforeprint', showAll);
+  }
 
   /* ----------------------------------------------------------------
      Hero network animation.
-     A signal wanders a jagged path from one highlighted "knowing"
-     node to a "doing" node, painting a red trail behind it. When it
-     arrives, both fade back to gray and a new pair lights up.
+     A signal wanders a jagged path, once, from one highlighted "knowing"
+     node to a "doing" node, painting a red trail behind it.
+     The trail then stays in place.
      Tweak NODES / EDGES below to reshape the network.
   ---------------------------------------------------------------- */
   (function () {
@@ -586,8 +568,8 @@
       trail.setAttribute('stroke-dashoffset', L);   // fully hidden ahead of the dot
 
       resetNodes();
-      circ[ks].setAttribute('class','n on kn'); circ[ks].setAttribute('r',9);
-      circ[ke].setAttribute('class','n on dg'); circ[ke].setAttribute('r',10);
+      circ[ks].setAttribute('class','n kn'); circ[ks].setAttribute('r',9);
+      circ[ke].setAttribute('class','n dg'); circ[ke].setAttribute('r',10);
       placeLabel(lblK, ks); placeLabel(lblD, ke);
 
       dot.style.transition = 'none';
@@ -603,19 +585,13 @@
         dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
         trail.setAttribute('stroke-dashoffset', L - cur);  // reveal only where the dot has been
         if (t < 1) raf = requestAnimationFrame(frame);
-        else finish(ks,ke);
+        else finish();
       }
       raf = requestAnimationFrame(frame);
     }
-    function finish(ks,ke) {
-      setTimeout(() => {
-        trail.style.transition = 'opacity .6s ease'; trail.style.opacity = '0';
-        dot.style.transition = 'opacity .6s ease'; dot.style.opacity = '0';
-        circ[ks].setAttribute('class','n'); circ[ks].setAttribute('r',7);
-        circ[ke].setAttribute('class','n'); circ[ke].setAttribute('r',7);
-        lblK.style.display = 'none'; lblD.style.display = 'none';
-        setTimeout(cycle, 750);
-      }, 650);
+    // Once the signal arrives, the thread stays: no loop, nothing keeps moving.
+    function finish() {
+      dot.style.transition = 'opacity .6s ease'; dot.style.opacity = '0';
     }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -625,8 +601,8 @@
       const L = trail.getTotalLength();
       trail.setAttribute('stroke-dasharray', L + ' ' + (L+1));
       trail.setAttribute('stroke-dashoffset', 0); trail.style.opacity = '1';
-      circ[ks].setAttribute('class','n on kn'); circ[ks].setAttribute('r',9);
-      circ[ke].setAttribute('class','n on dg'); circ[ke].setAttribute('r',10);
+      circ[ks].setAttribute('class','n kn'); circ[ks].setAttribute('r',9);
+      circ[ke].setAttribute('class','n dg'); circ[ke].setAttribute('r',10);
       const pt = trail.getPointAtLength(L);
       dot.setAttribute('cx',pt.x); dot.setAttribute('cy',pt.y); dot.style.display = '';
       placeLabel(lblK, ks); placeLabel(lblD, ke);
