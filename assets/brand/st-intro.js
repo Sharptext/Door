@@ -251,7 +251,9 @@
     html.classList.remove('st-intro-dim');
     html.classList.add('st-intro-reveal');
     logo.style.transform = 'translate(' + (b.left - a.left) + 'px,' + (b.top - a.top) + 'px) scale(' + (b.height / a.height) + ')';
-    eyebrow.style.transform = 'translate(' + (eb.left - ea.left) + 'px,' + (eb.top - ea.top) + 'px) scale(' + (eb.width / ea.width) + ')';
+    // scale by the ratio of the font sizes (the paragraph it lands in is wider than its text)
+    var k = parseFloat(getComputedStyle(toEyebrow).fontSize) / parseFloat(getComputedStyle(eyebrow).fontSize);
+    eyebrow.style.transform = 'translate(' + (eb.left - ea.left) + 'px,' + (eb.top - ea.top) + 'px) scale(' + k + ')';
     await wait(1100);
     done();
   }
