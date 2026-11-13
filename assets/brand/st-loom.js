@@ -1,20 +1,23 @@
 /*
   The loom: the woven background of the page, and the geometry the intro shares with it.
 
-  - stLoom.build(type, W, H) returns the lines of a loom covering W x H:
+  - stLoom.build(type, W, H) returns a loom covering W x H:
       'rows'     horizontal lines, like lines of text            (intro variant: loom)
       'columns'  vertical lines, like the warp on a loom          (intro variant: warp)
       'net'      wavy horizontal and vertical lines               (intro variants: net-h, net-v)
+    Every loom has nodes on a regular grid (where its threads cross, in the net), and
+    the red thread travels along the threads from node to node (stLoom.leg).
     The same function draws the intro's loom and the page background, so the lines
     the intro leaves behind are exactly the page's lines.
-  - stLoom.heroRoute(...) finds the red thread's route in the hero: from the word
-    "knowing", through three right points on the loom, to the word "doing".
-  - stLoom.crossings(path, lines) finds where a thread crosses the lines, so it can
-    go alternately over and under them.
+  - stLoom.heroRoute(...) finds the red thread's route in the hero: from the node by
+    "knowing", along the net through three right nodes, to the node by "doing".
+  - stLoom.crossings(path, lines) finds where the thread crosses threads, so it can go
+    alternately over and under them.
   - The page background is built on load: the faint loom behind all of main (a static
-    layer, drawn once), and the red thread on a layer of its own. The thread runs from
-    "knowing" to "doing", and from "doing" on it is drawn as the page scrolls: down
-    the side margins, across between sections, ending where "Let's talk" begins.
+    layer, drawn once), and the red thread on a layer of its own. From "doing" the
+    thread is drawn on as the page scrolls: along the net, leaving it only to run
+    underneath the key words of each section (marked .thread-mark), which take its
+    colour as it reaches them; it ends where "Let's talk" begins.
 */
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
@@ -43,117 +46,173 @@
     return parseInt(s, 10);
   }
 
-  function netRowY(j, x) { return NET.S / 2 + j * NET.S + NET.A * Math.sin(2 * Math.PI * x / NET.L + j * 1.9); }
-  function netColX(i, y, x0) { return x0 + i * NET.S + NET.A * Math.sin(2 * Math.PI * y / NET.L + i * 2.3); }
-
+  // ---------- the loom ----------
   function build(type, W, H) {
-    var lines = [], i, j, x, y, n;
-    if (type === 'columns') {
-      n = Math.floor(W / S);
-      var cx0 = (W - n * S) / 2 + S / 2;
-      for (i = 0; i < n; i++) { x = cx0 + i * S; lines.push({ dir: 'v', idx: i, pts: [[x, 0], [x, H]] }); }
-      return { type: type, lines: lines, x0: cx0, n: n };
+    var sp = type === 'net' ? NET.S : S;
+    var cols = Math.floor(W / sp), x0 = (W - cols * sp) / 2 + sp / 2, rows = Math.ceil(H / sp) + 1;
+    var lines = [], rowLines = [], colLines = [], i, j, x, y;
+    var rowY = function (j, x) { return type === 'net' ? sp / 2 + j * sp + NET.A * Math.sin(2 * Math.PI * x / NET.L + j * 1.9) : sp / 2 + j * sp; };
+    var colX = function (i, y) { return type === 'net' ? x0 + i * sp + NET.A * Math.sin(2 * Math.PI * y / NET.L + i * 2.3) : x0 + i * sp; };
+    var step = 16;
+    if (type !== 'columns') for (j = 0; j < rows; j++) {
+      var rp = [];
+      if (type === 'net') { for (x = 0; x <= W + step; x += step) rp.push([x, rowY(j, x)]); } else rp = [[0, rowY(j, 0)], [W, rowY(j, 0)]];
+      rowLines[j] = { dir: 'h', idx: j, pts: rp }; lines.push(rowLines[j]);
     }
-    if (type === 'net') {
-      var rows = Math.ceil(H / NET.S) + 1, cols = Math.floor(W / NET.S);
-      var nx0 = (W - cols * NET.S) / 2 + NET.S / 2;
-      for (j = 0; j < rows; j++) {
-        var rp = [];
-        for (x = 0; x <= W + 16; x += 16) rp.push([x, netRowY(j, x)]);
-        lines.push({ dir: 'h', idx: j, pts: rp });
-      }
-      for (i = 0; i < cols; i++) {
-        var cp = [];
-        for (y = 0; y <= H + 16; y += 16) cp.push([netColX(i, y, nx0), y]);
-        lines.push({ dir: 'v', idx: i, pts: cp });
-      }
-      var node = function (i, j) {          // where column i meets row j
-        var px = nx0 + i * NET.S, py = NET.S / 2 + j * NET.S;
-        for (var k = 0; k < 6; k++) { py = netRowY(j, px); px = netColX(i, py, nx0); }
-        return [px, py];
-      };
-      return { type: type, lines: lines, rows: rows, cols: cols, node: node,
-        row: function (j) { return lines[j]; }, col: function (i) { return lines[rows + i]; } };
+    if (type !== 'rows') for (i = 0; i < cols; i++) {
+      var cp = [];
+      if (type === 'net') { for (y = 0; y <= H + step; y += step) cp.push([colX(i, y), y]); } else cp = [[colX(i, 0), 0], [colX(i, 0), H]];
+      colLines[i] = { dir: 'v', idx: i, pts: cp }; lines.push(colLines[i]);
     }
-    for (j = 0, y = S / 2; y <= H + S; y += S, j++) lines.push({ dir: 'h', idx: j, pts: [[0, y], [W, y]] });
-    return { type: 'rows', lines: lines };
+    function node(i, j) {          // where column i meets row j
+      var px = x0 + i * sp, py = sp / 2 + j * sp;
+      if (type !== 'net') return [px, py];
+      for (var k = 0; k < 8; k++) { py = rowY(j, px); px = colX(i, py); }
+      return [px, py];
+    }
+    // points along row j between two x positions, and along column i between two y positions
+    function rowPath(j, xa, xb) {
+      var out = [[xa, rowY(j, xa)]];
+      if (type === 'net') {
+        var d = xb > xa ? 1 : -1, x = (d > 0 ? Math.floor(xa / step) + 1 : Math.ceil(xa / step) - 1) * step;
+        for (; d > 0 ? x < xb : x > xb; x += d * step) out.push([x, rowY(j, x)]);
+      }
+      out.push([xb, rowY(j, xb)]);
+      return out;
+    }
+    function colPath(i, ya, yb) {
+      var out = [[colX(i, ya), ya]];
+      if (type === 'net') {
+        var d = yb > ya ? 1 : -1, y = (d > 0 ? Math.floor(ya / step) + 1 : Math.ceil(ya / step) - 1) * step;
+        for (; d > 0 ? y < yb : y > yb; y += d * step) out.push([colX(i, y), y]);
+      }
+      out.push([colX(i, yb), yb]);
+      return out;
+    }
+    function nearest(p, ok) {
+      var ci = Math.round((p[0] - x0) / sp), rj = Math.round((p[1] - sp / 2) / sp), best = null, bd = 1e9;
+      for (var a = ci - 3; a <= ci + 3; a++) for (var b = rj - 3; b <= rj + 3; b++) {
+        if (a < 0 || a >= cols || b < 0 || b >= rows) continue;
+        var q = node(a, b), d = Math.hypot(q[0] - p[0], q[1] - p[1]);
+        if (ok && !ok(q, a, b)) continue;
+        if (d < bd) { bd = d; best = { i: a, j: b, p: q }; }
+      }
+      return best;
+    }
+    return { type: type, sp: sp, lines: lines, rows: rows, cols: cols, x0: x0, node: node, nearest: nearest,
+      rowPath: rowPath, colPath: colPath,
+      row: function (j) { return rowLines[j] || null; }, col: function (i) { return colLines[i] || null; } };
   }
 
-  // ---------- the hero route: knowing -> three right points -> doing ----------
-  function heroRoute(loom, W, axis, rand, sy) {
+  // From node a to node b along the threads: along a's row then b's column (rowFirst), or the other way.
+  function leg(L, a, b, rowFirst) {
+    var out, m;
+    if (rowFirst) {
+      m = { i: b.i, j: a.j };
+      out = L.rowPath(a.j, L.node(a.i, a.j)[0], L.node(m.i, m.j)[0]).concat(L.colPath(b.i, L.node(m.i, m.j)[1], L.node(b.i, b.j)[1]));
+    } else {
+      m = { i: a.i, j: b.j };
+      out = L.colPath(a.i, L.node(a.i, a.j)[1], L.node(m.i, m.j)[1]).concat(L.rowPath(b.j, L.node(m.i, m.j)[0], L.node(b.i, b.j)[0]));
+    }
+    var clean = [];
+    out.forEach(function (p) { var q = clean[clean.length - 1]; if (!q || Math.hypot(p[0] - q[0], p[1] - q[1]) > .5) clean.push(p); });
+    return clean;
+  }
+
+  // ---------- the hero route: knowing -> three right nodes -> doing, along the net ----------
+  function heroRoute(L, W, axis, rand, sy) {
     var k = document.getElementById('kd-knowing'), d = document.getElementById('kd-doing');
     if (!k || !d) return null;
     sy = sy || 0;
+    // The line ends in the full stop of "doing.": nudge the word (never more than half a cell)
+    // so that its full stop sits exactly on a node of the net.
+    var stop = document.getElementById('kd-dot'), Dn = null;
+    if (stop) {
+      d.style.transform = '';
+      var pr = stop.getBoundingClientRect();
+      var pc = [(pr.left + pr.right) / 2, pr.top + sy + pr.height * .76];
+      var half = L.sp * .6 + 2;
+      Dn = L.nearest(pc, function (q) { return q[0] <= W - 10 && Math.abs(q[0] - pc[0]) <= half && Math.abs(q[1] - pc[1]) <= half; });
+      if (Dn) d.style.transform = 'translate(' + (Dn.p[0] - pc[0]).toFixed(2) + 'px,' + (Dn.p[1] - pc[1]).toFixed(2) + 'px)';
+    }
     var kr = k.getBoundingClientRect(), dr = d.getBoundingClientRect();
-    var fs = parseFloat(getComputedStyle(k).fontSize) || 60, gap = Math.max(10, fs * .16);
-    var K = [kr.right + gap, kr.top + sy + kr.height * .56], D = [dr.left - gap, dr.top + sy + dr.height * .56];
-    var pad = W <= 760 ? 22 : 32;
-    var wide = D[0] - K[0] > 220;
-    var xs, y0, y1;
-    if (wide) {   // room between the words: the thread runs across between them
-      xs = [.25, .5, .75].map(function (f) { return lerp(K[0], D[0], f) + (rand() - .5) * (D[0] - K[0]) * .08; });
-      y0 = K[1] - 50; y1 = D[1] + 20;
-    } else {      // narrow screens: the thread zig-zags in the space between the two lines
-      xs = [lerp(K[0], W - pad, .55), pad + (W - 2 * pad) * .15, lerp(pad, D[0], .65)];
-      y0 = kr.bottom + sy + 10; y1 = dr.top + sy - 10;
+    var kb = { l: kr.left, r: kr.right, t: kr.top + sy, b: kr.bottom + sy };
+    var db = { l: dr.left, r: dr.right, t: dr.top + sy, b: dr.bottom + sy };
+    var fs = parseFloat(getComputedStyle(k).fontSize) || 60;
+    var lede = document.querySelector('.hero .lede');
+    var ledeTop = lede ? lede.getBoundingClientRect().top + sy : 1e9;
+    var headerB = 84 + sy;
+
+    var K = L.nearest([kb.r + fs * .2, (kb.t + kb.b) / 2], function (q) { return q[0] >= kb.r + 6; });
+    var D = Dn || L.nearest([db.l - fs * .2, (db.t + db.b) / 2], function (q) { return q[0] <= db.l - 6; });
+    if (!K || !D) return null;
+    var wide = db.l - K.p[0] > 220;
+
+    // a touched thread must not run behind the words, the text below, or the header
+    var inY = function (y, b) { return y > b.t - 6 && y < b.b + 6; };
+    var inX = function (x, b) { return x > b.l - 6 && x < b.r + 6; };
+    function lineOk(n) {
+      if (axis === 'v') return !inX(n.p[0], kb) && !inX(n.p[0], db);
+      return !inY(n.p[1], kb) && !inY(n.p[1], db) && n.p[1] > headerB && n.p[1] < ledeTop - 8;
     }
-    var stops = [];
-    if (loom.type === 'rows') {
-      var cand = loom.lines.filter(function (l) { return l.pts[0][1] >= y0 && l.pts[0][1] <= y1; });
-      var picks = pick(cand.length, 3, rand);
-      stops = picks.map(function (ci, i) { return { p: [xs[i], cand[ci].pts[0][1]], line: cand[ci] }; });
-    } else if (loom.type === 'columns') {
-      var used = {};
-      stops = xs.map(function (x, i) {
-        var best = null, bd = 1e9;
-        loom.lines.forEach(function (l) { var dx = Math.abs(l.pts[0][0] - x); if (!used[l.idx] && dx < bd) { bd = dx; best = l; } });
-        used[best.idx] = true;
-        var f = i % 2 ? .2 + .25 * rand() : .55 + .3 * rand();
-        return { p: [best.pts[0][0], lerp(y0, y1, f)], line: best };
-      });
-    } else {
-      var nodes = [];
-      for (var j = 0; j < loom.rows; j++) for (var i = 0; i < loom.cols; i++) {
-        var p = loom.node(i, j);
-        if (p[1] >= y0 && p[1] <= y1 && p[0] > pad && p[0] < W - pad) nodes.push({ p: p, i: i, j: j });
-      }
-      var usedR = {}, usedC = {};
-      stops = xs.map(function (x, n) {
-        var ty = lerp(y0, y1, n % 2 ? .25 : .75), best = null, bd = 1e9;
-        nodes.forEach(function (nd) {
-          if (usedR[nd.j] || usedC[nd.i]) return;
-          var dd = Math.hypot(nd.p[0] - x, nd.p[1] - ty);
-          if (dd < bd) { bd = dd; best = nd; }
-        });
-        if (!best) best = nodes[n % nodes.length];
-        usedR[best.j] = true; usedC[best.i] = true;
-        return { p: best.p, line: axis === 'v' ? loom.col(best.i) : loom.row(best.j) };
-      });
+    var cand = [];
+    for (var j = 0; j < L.rows; j++) for (var i = 0; i < L.cols; i++) {
+      var n = { i: i, j: j, p: L.node(i, j) };
+      if (n.p[1] < headerB || n.p[1] > ledeTop - 8) continue;
+      if (n.p[1] < kb.t - L.sp * 1.2 || n.p[1] > db.b + L.sp * 1.2) continue;   // keep the route near the two words
+      if (wide) { if (i <= K.i || n.p[0] > db.l - 6 || n.p[1] > db.t - 8) continue; }   // between the words, above "doing"
+      else if (!(n.p[1] > kb.b + 4 && n.p[1] < db.t - 4)) continue;   // narrow screens: the space between the two words
+      if (inX(n.p[0], kb) && inY(n.p[1], kb)) continue;
+      cand.push(n);
     }
-    return { K: K, D: D, stops: stops, pts: [K].concat(stops.map(function (s) { return s.p; }), [D]) };
-  }
-  // pick n distinct indices out of m, in a zig-zag order where possible
-  function pick(m, n, rand) {
-    var idx = []; for (var i = 0; i < m; i++) idx.push(i);
-    for (i = idx.length - 1; i > 0; i--) { var j = Math.floor(rand() * (i + 1)); var t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
-    var out = idx.slice(0, Math.min(n, m));
-    while (out.length < n) out.push(out[out.length - 1] || 0);
-    return out;
+    // shuffle, then pick three on different threads; strict first, relaxed if the screen is too small
+    for (i = cand.length - 1; i > 0; i--) { j = Math.floor(rand() * (i + 1)); var t = cand[i]; cand[i] = cand[j]; cand[j] = t; }
+    function choose(strict) {
+      var out = [], used = {};
+      cand.forEach(function (n) {
+        if (out.length === 3) return;
+        var key = axis === 'v' ? 'c' + n.i : 'r' + n.j;
+        if (used[key] || (strict && !lineOk(n))) return;
+        if (out.some(function (o) { return o.i === n.i || o.j === n.j; }) && strict) return;
+        used[key] = true; out.push(n);
+      });
+      return out;
+    }
+    var stops = choose(true);
+    if (stops.length < 3) stops = choose(false);
+    while (stops.length < 3 && cand.length) stops.push(cand[stops.length % cand.length]);
+    if (stops.length < 3) return null;
+    // order them: across from knowing to doing on wide screens; right, middle, left on narrow ones
+    stops.sort(function (a, b) { return wide ? a.p[0] - b.p[0] : b.p[0] - a.p[0]; });
+
+    var nodes = [K].concat(stops, [D]);
+    var pts = [K.p];
+    // Leave "knowing" down its node's column, and reach "doing" down its node's column, so the
+    // thread never runs across either word.
+    for (var s = 0; s < nodes.length - 1; s++) pts = pts.concat(leg(L, nodes[s], nodes[s + 1], s === nodes.length - 2).slice(1));
+    var at = [0], acc = 0;            // where along the route each node sits
+    for (s = 1; s < pts.length; s++) acc += Math.hypot(pts[s][0] - pts[s - 1][0], pts[s][1] - pts[s - 1][1]);
+    var cum = function (p) { var a = 0; for (var q = 1; q < pts.length; q++) { a += Math.hypot(pts[q][0] - pts[q - 1][0], pts[q][1] - pts[q - 1][1]); if (Math.hypot(pts[q][0] - p[0], pts[q][1] - p[1]) < .6) return a; } return a; };
+    return {
+      K: K.p, D: D.p, Dn: D, pts: pts,
+      stops: stops.map(function (n) { return { p: n.p, at: cum(n.p), line: axis === 'v' ? L.col(n.i) : L.row(n.j), i: n.i, j: n.j }; })
+    };
   }
 
   function segInt(a, b, c, d) {
     var rx = b[0] - a[0], ry = b[1] - a[1], sx = d[0] - c[0], sy = d[1] - c[1];
     var den = rx * sy - ry * sx;
-    if (Math.abs(den) < 1e-9) return null;
+    if (Math.abs(den) < 1e-6 * (Math.abs(rx) + Math.abs(ry) + 1) * (Math.abs(sx) + Math.abs(sy) + 1)) return null;
     var qx = c[0] - a[0], qy = c[1] - a[1];
     var t = (qx * sy - qy * sx) / den, u = (qx * ry - qy * rx) / den;
     if (t < 0 || t > 1 || u < 0 || u > 1) return null;
     return [a[0] + t * rx, a[1] + t * ry, t];
   }
 
-  // Where a thread (polyline) crosses the lines; skips crossings within `near` px of the thread's own points.
+  // Where a thread (polyline) crosses the lines; skips crossings within `near` px of the thread's own points
+  // (the thread turns at nodes, and runs along threads, which is not crossing them).
   function crossings(path, lines, near) {
-    near = near == null ? 6 : near;
+    near = near == null ? 3 : near;
     lines.forEach(function (l) {
       if (l.box) return;
       var xs = l.pts.map(function (p) { return p[0]; }), ys = l.pts.map(function (p) { return p[1]; });
@@ -169,6 +228,7 @@
           var p = segInt(a, b, l.pts[m], l.pts[m + 1]);
           if (!p) continue;
           if (Math.hypot(p[0] - a[0], p[1] - a[1]) < near || Math.hypot(p[0] - b[0], p[1] - b[1]) < near) continue;
+          if (out.some(function (o) { return o.line === l && Math.abs(o.at - (acc + p[2] * segL)) < 2; })) continue;
           out.push({ x: p[0], y: p[1], at: acc + p[2] * segL, line: l });
         }
       });
@@ -200,30 +260,34 @@
     var variant = window.stIntroVariant;
     var loom = build(typeFor(variant), W, H);
 
-    // The hero part of the route: the intro's own route if it has just drawn one, else the same choice made here.
+    // The hero part: the intro's own route if it has just drawn one, else the same choice made here.
     var hero = window.stIntroRoute && Math.abs(window.stIntroRoute.W - W) < 24 ? window.stIntroRoute
       : heroRoute(loom, W, axisFor(variant), seeded(sessionSeed()), sy);
-    var secs = Array.prototype.slice.call(main.querySelectorAll(':scope > section'));
     if (!hero) return;
 
-    // From "doing" the thread goes word to word: it runs underneath the key words of each
-    // section (marked .thread-mark), which take its colour as it reaches them, and ends
-    // where "Let's talk" begins.
-    var route = hero.pts.slice(), D = hero.D, heroEnd = route.length - 1;
+    // From "doing", along the net to each key word; only the hop onto the word, the underline,
+    // and the hop back onto the net leave it.
+    var route = hero.pts.slice(), heroEnd = route.length - 1, cur = hero.Dn;
     var html = document.documentElement;
     html.classList.add('st-measuring');            // measure without the scroll-in offsets
     var marks = Array.prototype.slice.call(main.querySelectorAll('.thread-mark')).map(function (m) {
       var rs = m.getClientRects(), a = rs[0], z = rs[rs.length - 1];
-      var y = a.bottom + sy - 1;
-      return { el: m, from: [a.left - 4, y], to: [z.right + 4, z.bottom + sy - 1] };
+      return { el: m, from: [a.left - 4, a.bottom + sy - 1], to: [z.right + 4, z.bottom + sy - 1] };
     });
     var talk = document.getElementById('talk');
-    var end = talk ? [W / 2, talk.getBoundingClientRect().top + sy] : null;
+    var talkTop = talk ? talk.getBoundingClientRect().top + sy : H;
     html.classList.remove('st-measuring');
     var markAt = [];
-    marks.forEach(function (m) { markAt.push(route.length); route.push(m.from, m.to); });
-    if (end) route.push(end);
-    if (secs.length < 1) return;
+    marks.forEach(function (m) {
+      var on = loom.nearest(m.from, function (q) { return q[1] <= m.from[1] + 2 && q[0] <= m.from[0] + 4; }) || loom.nearest(m.from);
+      route = route.concat(leg(loom, cur, on, false).slice(1));
+      markAt.push(route.length);
+      route.push(m.from, m.to);
+      cur = loom.nearest(m.to, function (q) { return q[1] >= m.to[1] - 2; }) || loom.nearest(m.to);
+      route.push(cur.p);
+    });
+    var end = loom.nearest([W / 2, talkTop - 10], function (q) { return q[1] < talkTop; });
+    if (end) route = route.concat(leg(loom, cur, end, false).slice(1));
 
     // Layer 1 (static, drawn once): the loom, with gaps where the thread goes over it.
     var svg = el('svg', { id: 'st-loom', 'aria-hidden': 'true', width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
@@ -235,19 +299,13 @@
     // Layer 2 (redrawn on scroll): the thread. Gaps where it goes under are part of its dash pattern.
     var tsvg = el('svg', { id: 'st-thread', 'aria-hidden': 'true', width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
     var thread = el('path', { class: 'stl-thread', d: pathD(route) }, tsvg);
-    var stops = route.map(function (p, i) {
-      var cls = 'stl-stop', r = 3;
-      if (i === 0) { cls += ' stl-node'; r = 6; }
-      else if (i === heroEnd) { cls += ' stl-node stl-node-d'; r = 6; }
-      else if (i < heroEnd) r = 3.5;
-      else if (i === route.length - 1) r = 4.5;
-      else r = 0;                      // the underlines need no dots
-      return el('circle', { class: cls, cx: p[0], cy: p[1], r: r }, tsvg);
+    var dots = [hero.K].concat(hero.stops.map(function (s) { return s.p; })).map(function (p) {
+      return el('circle', { class: 'stl-stop', cx: p[0], cy: p[1], r: 3.5 }, tsvg);
     });
     var tip = el('circle', { class: 'stl-tip', r: 3.5 }, tsvg);
 
     var unders = [], flip = true;
-    crossings(route, loom.lines, 6).forEach(function (c) {
+    crossings(route, loom.lines, 3).forEach(function (c) {
       if (flip) el('circle', { cx: c.x, cy: c.y, r: 3.5, fill: '#000' }, mLines);
       else unders.push(c.at);
       flip = !flip;
@@ -257,12 +315,14 @@
     document.body.appendChild(tsvg);
 
     var cum = [0];
-    for (k = 1; k < route.length; k++) cum.push(cum[k - 1] + Math.hypot(route[k][0] - route[k - 1][0], route[k][1] - route[k - 1][1]));
-    // Reveal by height: a vertex is reached when the page has scrolled it up to the drawing point.
-    // Going up (or along a line) never waits: such stretches appear once the point before them is reached.
+    for (var k = 1; k < route.length; k++) cum.push(cum[k - 1] + Math.hypot(route[k][0] - route[k - 1][0], route[k][1] - route[k - 1][1]));
+    // Reveal by height: a point is reached when the page has scrolled it up to the drawing point.
+    // Stretches that go up (or along a thread) appear once the point before them is reached.
     var reach = [], hi = -1e9;
     route.forEach(function (p) { hi = Math.max(hi, p[1]); reach.push(hi); });
-    state = { route: route, cum: cum, reach: reach, total: cum[cum.length - 1], heroEnd: heroEnd, D: D, thread: thread, stops: stops, tip: tip, unders: unders, marks: marks, markAt: markAt, last: -1 };
+    state = { route: route, cum: cum, reach: reach, total: cum[cum.length - 1], heroEnd: heroEnd, D: hero.D,
+              thread: thread, dots: dots, tip: tip, unders: unders, marks: marks, markAt: markAt, last: -1 };
+    dots.forEach(function (d) { d.classList.add('on'); });
     draw(true);
   }
 
@@ -301,10 +361,6 @@
     var p = state.thread.getPointAtLength(L);
     state.tip.setAttribute('cx', p.x); state.tip.setAttribute('cy', p.y);
     state.tip.style.display = L > state.cum[state.heroEnd] + 1 && L < state.total ? '' : 'none';
-    state.cum.forEach(function (c, i) {
-      var on = L >= c - .5, e = state.stops[i];
-      if (e.__on !== on) { e.__on = on; e.classList.toggle('on', on); }
-    });
     state.marks.forEach(function (m, i) {
       var on = L >= state.cum[state.markAt[i]] - .5;
       if (m.el.__on !== on) { m.el.__on = on; m.el.classList.toggle('lit', on); }
@@ -316,7 +372,7 @@
   var timer = null;
   function rebuild() { clearTimeout(timer); timer = setTimeout(buildPage, 150); }
 
-  window.stLoom = { build: build, heroRoute: heroRoute, crossings: crossings, typeFor: typeFor, axisFor: axisFor,
+  window.stLoom = { build: build, leg: leg, heroRoute: heroRoute, crossings: crossings, typeFor: typeFor, axisFor: axisFor,
     seeded: seeded, sessionSeed: sessionSeed, S: S, rebuild: rebuild };
 
   function start() {
