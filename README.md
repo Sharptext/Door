@@ -31,6 +31,8 @@ Add `st-logo--dark` (on dark backgrounds), `st-logo--black` or `st-logo--white` 
 
 Colours are defined once as `--st-*` variables at the top of the `<style>` block in `index.html`. The red (`--st-thread`) is the only accent: use it sparingly. The company name is written "Sharptext" in running text; only the logo wordmark is lowercase.
 
+**Intro animation.** On the first visit in a browser session, the home page opens with only "knowing" and "doing" on screen. On scroll, click, key press or after 2.5 seconds, a dot finds its way from one to the other, its red trail pulls straight into the logo's thread, the lines weave through it, and the logo flies into the header as the site appears. A click or key press skips it. It does not play for people who have reduced motion turned on, or for links to a section of the page. Add `?intro` to the address to see it again. It lives in `assets/brand/st-intro.js` and `st-intro.css`; to switch it off, delete the "Intro animation" block in the `<head>` of `index.html`.
+
 If the logo or colours change, regenerate the icons and share image with `node tools/render-brand-assets.mjs` (needs Playwright and Python with Pillow).
 
 ---

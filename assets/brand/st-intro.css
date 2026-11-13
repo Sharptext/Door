@@ -1,0 +1,59 @@
+/*
+  Intro: "knowing" and "doing" on an empty page; the dot finds its way, the trail
+  becomes the red thread, the lines weave through it, the lockup forms and flies
+  into the header while the site comes into view. Driven by st-intro.js.
+  Nothing here applies unless <html> has the class st-intro (set in the page head).
+*/
+html.st-intro { overflow: hidden; }
+html.st-intro header.site,
+html.st-intro main,
+html.st-intro footer.site { opacity: 0; }
+html.st-intro .brand { visibility: hidden; }
+html.st-intro.st-intro-reveal header.site,
+html.st-intro.st-intro-reveal main,
+html.st-intro.st-intro-reveal footer.site { opacity: 1; transition: opacity .9s ease .2s; }
+
+#st-intro {
+  position: fixed; inset: 0; z-index: 1000;
+  background-color: rgba(255,255,255,1);
+  transition: background-color .9s ease;
+}
+#st-intro.sti-fly { background-color: rgba(255,255,255,0); pointer-events: none; }
+
+.sti-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sti-trail { fill: none; stroke: #C2412D; stroke-linejoin: round; stroke-linecap: butt; }
+.sti-node { fill: #FFFFFF; stroke: #C2412D; stroke-width: 2.4; transition: fill .35s ease; }
+.sti-node.sti-on { fill: #C2412D; }
+.sti-dot { fill: #C2412D; }
+
+.sti-label {
+  position: absolute; transform: translateX(-50%);
+  font-family: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13.5px; letter-spacing: .12em; text-transform: uppercase;
+  color: #4A4F57; white-space: nowrap; line-height: 1;
+}
+.sti-node, .sti-label { opacity: 0; transition: opacity .8s ease, fill .35s ease; }
+#st-intro.sti-ready .sti-node, #st-intro.sti-ready .sti-label { opacity: 1; }
+#st-intro.sti-settle .sti-label { opacity: 0; transition-duration: .4s; }
+
+/* The lockup that forms in the middle of the screen */
+.sti-lockup { position: absolute; left: 0; top: 0; transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+.sti-lockup .st-logo { font-size: clamp(40px, 8vw, 100px); transform-origin: 0 0; }
+.sti-lockup .st-logo__symbol { opacity: 0; }
+#st-intro.sti-symbol .st-logo__symbol { opacity: 1; }
+
+.sti-lockup .st-line {
+  transform: scaleX(0); transform-box: fill-box; transform-origin: 0 50%;
+  transition: transform .7s cubic-bezier(.3,.7,.2,1);
+}
+#st-intro.sti-weave .st-line { transform: scaleX(1); }
+#st-intro.sti-weave .st-line-mid { transition-delay: .14s; }
+#st-intro.sti-weave .st-line-bottom { transition-delay: .28s; }
+
+.sti-lockup .st-logo__word {
+  opacity: 0; transform: translateX(-.2em);
+  transition: opacity .6s ease, transform .8s cubic-bezier(.2,.7,.2,1);
+}
+#st-intro.sti-word .st-logo__word { opacity: 1; transform: none; }
+
+#st-intro.sti-fly .sti-lockup .st-logo { transition: transform 1s cubic-bezier(.65,0,.25,1); }
