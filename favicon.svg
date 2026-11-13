@@ -1,8 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="SharpText">
-  <title>SharpText</title>
-  <rect width="32" height="32" rx="7" fill="#205C43"/>
-  <!-- sharptext "x" with the signature sharp blade rising to the upper right -->
-  <path d="M7.81 11.17 L20.41 23.97 L23.19 21.23 L10.59 8.43 Z" fill="#F4F1E9"/>
-  <path d="M10.58 23.98 L16.98 17.58 L14.22 14.82 L7.82 21.22 Z" fill="#F4F1E9"/>
-  <path d="M17.05 17.50 L21.95 12.30 L24.40 6.40 L19.05 9.70 L14.15 14.90 Z" fill="#F4F1E9"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Sharptext">
+  <title>Sharptext</title>
+  <style>
+    .st-line { fill: #16191D; }
+    .st-thread { fill: #C2412D; }
+    @media (prefers-color-scheme: dark) {
+      .st-line { fill: #F5F4F0; }
+      .st-thread { fill: #EE6A52; }
+    }
+  </style>
+  <defs>
+    <mask id="st-over" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+      <rect width="100" height="100" fill="#fff"/>
+      <rect x="34" y="18" width="12" height="16" fill="#000"/>
+      <rect x="34" y="66" width="12" height="16" fill="#000"/>
+    </mask>
+    <mask id="st-under" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+      <rect width="100" height="100" fill="#fff"/>
+      <rect x="34" y="42" width="12" height="16" fill="#000"/>
+    </mask>
+  </defs>
+  <g class="st-line" mask="url(#st-over)">
+    <rect x="14" y="20.5" width="72" height="11"/>
+    <rect x="14" y="68.5" width="52" height="11"/>
+  </g>
+  <rect class="st-thread" x="36.5" y="6" width="7" height="88" mask="url(#st-under)"/>
+  <rect class="st-line" x="14" y="44.5" width="72" height="11"/>
 </svg>
