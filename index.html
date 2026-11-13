@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SharpText: Architecture for learning</title>
-<meta name="description" content="SharpText is a learning architecture consultancy. We design how learning is structured and connected so it shows up in what people can actually do, with the evidence to prove it.">
-<meta name="author" content="SharpText">
+<title>Sharptext: Architecture for learning</title>
+<meta name="description" content="Sharptext is a learning architecture consultancy. We design how learning is structured and connected so it shows up in what people can actually do, with the evidence to prove it.">
+<meta name="author" content="Sharptext">
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#205C43">
+<meta name="theme-color" content="#16191D">
 <link rel="canonical" href="https://sharptext.org/">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4YLD39527L"></script>
@@ -20,37 +20,44 @@
     </script>
 
 <!-- Icons & manifest -->
+<link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 
 <!-- Social sharing (Open Graph + Twitter) -->
-<meta property="og:title" content="SharpText: Architecture for learning">
+<meta property="og:title" content="Sharptext: Architecture for learning">
 <meta property="og:description" content="We design how learning connects so it shows up in what people can do, with the evidence to prove it.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sharptext.org/">
-<meta property="og:site_name" content="SharpText">
+<meta property="og:site_name" content="Sharptext">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://sharptext.org/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="SharpText, architecture for learning. From knowing to doing.">
+<meta property="og:image:alt" content="The Sharptext logo: three lines of text with a red thread woven through them, next to the word sharptext.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="SharpText: Architecture for learning">
+<meta name="twitter:title" content="Sharptext: Architecture for learning">
 <meta name="twitter:description" content="We design how learning connects so it shows up in what people can do, with the evidence to prove it.">
 <meta name="twitter:image" content="https://sharptext.org/og-image.png">
+<meta name="twitter:image:alt" content="The Sharptext logo: three lines of text with a red thread woven through them, next to the word sharptext.">
 
 <!-- Fonts: preconnect first, then the stylesheet. Edit the families below to change type. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Space+Mono:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
-<!-- Structured data: helps search engines understand who SharpText is -->
+<!-- Logo component (<st-logo>) -->
+<link rel="stylesheet" href="assets/brand/st-logo.css">
+<script src="assets/brand/st-logo.js" defer></script>
+
+<!-- Structured data: helps search engines understand who Sharptext is -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
-  "name": "SharpText",
+  "name": "Sharptext",
+  "logo": "https://sharptext.org/icon-512.png",
   "description": "Learning architecture consultancy. We design how learning is structured and connected so it shows up in what people can actually do, with the evidence to prove it.",
   "url": "https://sharptext.org/",
   "email": "learning@sharptext.org",
@@ -61,44 +68,55 @@
 </script>
 
 <style>
+  /* ---------- Brand tokens (Sharptext identity) ---------- */
   :root {
-    --paper: #F4F1E9;        /* warm trace-paper */
-    --paper-2: #ECE8DD;      /* slightly deeper panel */
-    --ink: #15161B;          /* near-black */
-    --ink-2: #181C19;        /* dark green-black section bg */
-    --muted: #5C5950;        /* warm gray text (AA contrast on paper) */
-    --line: #D5D0C3;         /* hairline */
-    --line-2: #C4BEAF;       /* stronger hairline */
-    --accent: #205C43;       /* deep pine green */
-    --accent-ink: #15402E;   /* darker green */
+    --st-ink: #16191D;            /* text and dark surfaces */
+    --st-paper: #FFFFFF;          /* page background */
+    --st-paper-warm: #F5F4F0;     /* alternate sections, text on dark */
+    --st-thread: #C2412D;         /* the single accent: 5.1:1 on paper, 4.7:1 on paper-warm */
+    --st-thread-on-dark: #EE6A52; /* accent on dark surfaces: 5.7:1 on ink */
+    --st-muted: #4A4F57;          /* secondary text: 8.2:1 on paper */
+
+    /* Derived neutrals (not part of the brand palette, used for structure only) */
+    --st-line: #E4E3DE;           /* hairline */
+    --st-line-strong: #CFCEC8;    /* stronger hairline */
+    --st-node: #A9ACB1;           /* inactive diagram nodes */
+    --st-on-dark-muted: #A3A7AE;  /* secondary text on ink: 7.3:1 */
+    --st-on-dark-line: #343940;   /* hairlines on ink */
+
+    --st-font-display: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --st-font-body: 'Inter', system-ui, sans-serif;
+
     --max: 1180px;
   }
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
 
-  /* Visible focus for keyboard users */
+  /* Visible focus for keyboard users: the thread as a focus ring */
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--st-thread);
     outline-offset: 3px;
     border-radius: 2px;
   }
+  .contact a:focus-visible, .contact button:focus-visible, .contact input:focus-visible, .contact textarea:focus-visible,
+  footer.site a:focus-visible { outline-color: var(--st-thread-on-dark); }
 
   /* Skip link for screen-reader / keyboard users */
   .skip {
     position: absolute; left: 12px; top: -60px; z-index: 100;
-    background: var(--ink); color: var(--paper);
+    background: var(--st-ink); color: var(--st-paper);
     padding: 10px 16px; border-radius: 4px;
-    font-family: 'Space Mono', monospace; font-size: 13px;
+    font-family: var(--st-font-display); font-size: 13px;
     transition: top .2s;
   }
-  .skip:focus { top: 12px; color: var(--paper); }
+  .skip:focus { top: 12px; color: var(--st-paper); }
 
   body {
     margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--st-paper);
+    color: var(--st-ink);
+    font-family: var(--st-font-body);
     font-size: 18px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -113,7 +131,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background-image: linear-gradient(to right, rgba(21,22,27,0.045) 1px, transparent 1px);
+    background-image: linear-gradient(to right, rgba(22,25,29,0.045) 1px, transparent 1px);
     background-size: calc(100% / 6) 100%;
     background-position: center;
     max-width: var(--max);
@@ -126,140 +144,145 @@
   .wrap { max-width: var(--max); margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
 
   h1, h2, h3 {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: var(--st-font-display);
     font-weight: 400;
-    line-height: 1.04;
-    letter-spacing: -0.015em;
-    color: var(--ink);
+    line-height: 1.06;
+    letter-spacing: -0.022em;
+    color: var(--st-ink);
   }
-  p { color: var(--muted); }
-  a { color: var(--accent-ink); text-decoration: none; }
+  p { color: var(--st-muted); }
+  a { color: var(--st-ink); text-decoration: none; transition: color .18s; }
   em { font-style: italic; }
 
   .mono {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--st-font-display);
     font-size: 12.5px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--st-muted);
   }
 
   .index { display: flex; align-items: center; gap: 16px; margin-bottom: 34px; }
-  .index .num { color: var(--accent); }
-  .index .bar { flex: 1; height: 1px; background: var(--line-2); }
+  .index .num { color: var(--st-thread); font-weight: 600; }
+  .index .bar { flex: 1; height: 1px; background: var(--st-line-strong); }
 
   section { padding: 110px 0; position: relative; }
-  section + section { border-top: 1px solid var(--line); }
+  section + section { border-top: 1px solid var(--st-line); }
 
   /* ---------- Header ---------- */
   header.site {
     position: sticky; top: 0; z-index: 20;
-    background: rgba(244,241,233,0.82);
+    background: rgba(255,255,255,0.86);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--st-line);
   }
   header.site .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 18px; padding-bottom: 18px; }
-  .brand { display: inline-flex; align-items: center; color: var(--ink); transition: color .2s; }
-  .brand-logo { height: 21px; width: auto; display: block; }
-  .brand:hover { color: var(--accent); }
-  .nav-cta { font-family:'Space Mono',monospace; font-size:12.5px; letter-spacing:0.1em; text-transform:uppercase; border:1px solid var(--ink); padding:9px 16px; border-radius:2px; color:var(--ink); transition:.2s; }
-  .nav-cta:hover { background: var(--ink); color: var(--paper); }
+  .brand { display: inline-flex; align-items: center; }
+  .brand .st-logo { font-size: 24px; }
+  .nav-cta { font-family: var(--st-font-display); font-weight: 600; font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--st-ink); padding: 9px 16px; border-radius: 2px; color: var(--st-ink); transition: .2s; }
+  .nav-cta:hover { background: var(--st-ink); color: var(--st-paper); }
 
   /* ---------- Buttons ---------- */
   .btn {
     display: inline-flex; align-items: center; gap: 12px;
-    background: var(--accent); color: #fff;
-    font-family: 'Space Mono', monospace;
-    font-size: 14px; letter-spacing: 0.05em;
+    background: var(--st-ink); color: var(--st-paper);
+    font-family: var(--st-font-display); font-weight: 600;
+    font-size: 15px; letter-spacing: 0.01em;
     padding: 17px 28px; border: none; border-radius: 2px;
-    cursor: pointer; transition: background .18s, transform .18s;
+    cursor: pointer; transition: background .18s, color .18s, transform .18s;
   }
-  .btn:hover { background: var(--accent-ink); transform: translateY(-1px); }
-  .btn .arr { font-family: monospace; }
+  .btn:hover { background: var(--st-thread); color: var(--st-paper); transform: translateY(-1px); }
+  .btn .arr { font-family: var(--st-font-display); }
 
   /* ---------- Hero ---------- */
   .hero { padding: 80px 0 90px; }
   .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; align-items: center; }
-  .hero h1 { font-size: clamp(54px, 8vw, 112px); font-weight: 300; margin: 18px 0 30px; }
-  .hero h1 .doing { font-style: italic; color: var(--accent); }
+  .hero h1 { font-size: clamp(52px, 7.6vw, 106px); font-weight: 400; letter-spacing: -0.035em; line-height: 1.02; margin: 18px 0 30px; }
+  .hero h1 .doing { font-style: italic; color: var(--st-thread); }
   .hero .lede { font-size: clamp(18px, 2vw, 21px); max-width: 520px; margin: 0 0 38px; }
   .system-stage { position: relative; }
   .system-stage svg { width: 100%; height: auto; display: block; overflow: visible; }
 
-  /* SVG system (animated network) */
-  .sys-edge { stroke: #CDC6B6; stroke-width: 1; fill: none; }      /* faint static web */
-  .n { fill: var(--paper); stroke: #B0A998; stroke-width: 1.5; transition: stroke .45s ease, stroke-width .45s ease; }
-  .n.kn { stroke: var(--accent); stroke-width: 2.4; }              /* active "knowing" (hollow green) */
-  .n.dg { stroke: var(--accent); fill: var(--accent); }           /* active "doing" (filled green) */
+  /* SVG system (animated network): the signal leaves a red thread behind it */
+  .sys-edge { stroke: var(--st-line-strong); stroke-width: 1; fill: none; }   /* faint static web */
+  .n { fill: var(--st-paper); stroke: var(--st-node); stroke-width: 1.5; transition: stroke .45s ease, stroke-width .45s ease; }
+  .n.kn { stroke: var(--st-thread); stroke-width: 2.4; }                     /* active "knowing" (hollow) */
+  .n.dg { stroke: var(--st-thread); fill: var(--st-thread); }                /* active "doing" (filled) */
   .n.on { animation: nodepulse 2.4s ease-in-out infinite; }
   @keyframes nodepulse { 0%,100%{ opacity:.85; } 50%{ opacity:1; } }
-  .trail { stroke: var(--accent); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .signal { fill: var(--accent); }
-  .svg-label { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; fill: var(--muted); }
+  .trail { stroke: var(--st-thread); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .signal { fill: var(--st-thread); }
+  .svg-label { font-family: var(--st-font-display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; fill: var(--st-muted); }
   /* paper outline so labels stay fully readable over the network lines */
-  .svg-label.halo { paint-order: stroke; stroke: var(--paper); stroke-width: 5px; stroke-linejoin: round; }
+  .svg-label.halo { paint-order: stroke; stroke: var(--st-paper); stroke-width: 5px; stroke-linejoin: round; }
   @media (prefers-reduced-motion: reduce) { .n.on { animation: none; } }
 
   /* ---------- Lead-in prose ---------- */
   .lead-in { max-width: 760px; }
-  .lead-in h2 { font-size: clamp(34px, 4.5vw, 56px); font-weight: 300; margin: 0 0 28px; }
+  .lead-in h2 { font-size: clamp(32px, 4.3vw, 52px); font-weight: 400; margin: 0 0 28px; }
   .lead-in p { font-size: 19px; margin: 0 0 22px; max-width: 680px; }
-  .panel { background: var(--paper-2); }
+  .panel { background: var(--st-paper-warm); }
 
   /* ---------- Audience cards ---------- */
-  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 52px; border: 1px solid var(--line-2); }
-  .card { padding: 38px 30px; border-right: 1px solid var(--line-2); transition: background .2s; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 52px; border: 1px solid var(--st-line-strong); }
+  .card { padding: 38px 30px; border-right: 1px solid var(--st-line-strong); transition: background .2s; }
   .card:last-child { border-right: none; }
-  .card:hover { background: var(--paper-2); }
-  .card .ci { color: var(--accent); }
-  .card h3 { font-size: 25px; font-weight: 400; margin: 14px 0 16px; }
+  .card:hover { background: var(--st-paper); }
+  .card .ci { color: var(--st-ink); font-weight: 600; }
+  .card h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.018em; margin: 14px 0 16px; }
   .card p { font-size: 16px; margin: 0; }
 
   /* ---------- Tiers progression ---------- */
   .tiers { margin-top: 56px; }
   .axis { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; position: relative; }
   .stop { padding: 0 28px 0 0; position: relative; }
-  .stop .dot { width: 13px; height: 13px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--ink); position: relative; z-index: 2; }
-  .stop.free .dot { background: var(--accent); border-color: var(--accent); }
-  .stop .rail { position: absolute; top: 6px; left: 0; right: 0; height: 1px; background: var(--line-2); z-index: 1; }
+  .stop .dot { width: 13px; height: 13px; border-radius: 50%; background: var(--st-paper); border: 1.5px solid var(--st-ink); position: relative; z-index: 2; }
+  .stop.free .dot { background: var(--st-thread); border-color: var(--st-thread); }
+  .stop .rail { position: absolute; top: 6px; left: 0; right: 0; height: 1px; background: var(--st-line-strong); z-index: 1; }
   .stop:last-child .rail { right: 50%; }
-  .stop h3 { font-size: 26px; font-weight: 400; margin: 26px 0 6px; }
-  .stop .meta { font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.1em; color: var(--accent); text-transform: uppercase; }
+  .stop h3 { font-size: 25px; font-weight: 600; letter-spacing: -0.018em; margin: 26px 0 6px; }
+  .stop .meta { font-family: var(--st-font-display); font-size: 12px; letter-spacing: 0.1em; color: var(--st-muted); text-transform: uppercase; }
   .stop p { font-size: 16px; margin: 16px 0 0; padding-right: 24px; }
 
   /* ---------- Logos ---------- */
   .logos { text-align: center; }
   .logos .index { justify-content: center; max-width: 620px; margin-left:auto; margin-right:auto; }
-  .logos h2 { font-family:'Fraunces',serif; font-weight:300; font-size: clamp(22px,3vw,30px); color: var(--ink); max-width: 620px; margin: 0 auto 48px; }
+  .logos h2 { font-family: var(--st-font-display); font-weight: 400; font-size: clamp(22px,3vw,30px); color: var(--st-ink); max-width: 620px; margin: 0 auto 48px; }
   .logo-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 30px 52px; }
   .logo-grid img { height: 44px; width: auto; max-width: 160px; object-fit: contain; filter: grayscale(1); opacity: .62; transition: .2s; }
   .logo-grid img:hover { opacity: 1; filter: grayscale(0); }
 
-  /* ---------- Contact ---------- */
-  .contact { background: var(--ink-2); color: var(--paper); border-top: none; }
+  /* ---------- Contact (dark surface) ---------- */
+  .contact { background: var(--st-ink); color: var(--st-paper-warm); border-top: none; }
   .contact::before { content:""; position:absolute; inset:0; pointer-events:none;
     background-image: linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px);
     background-size: calc(100% / 6) 100%; max-width: var(--max); left:50%; transform: translateX(-50%); width:100%; }
   .contact .wrap { z-index: 2; }
   .contact .index .bar { background: rgba(255,255,255,0.18); }
-  .contact .mono, .contact .index .num { color: #9C9A92; }
+  .contact .mono { color: var(--st-on-dark-muted); }
+  .contact .index .num { color: var(--st-thread-on-dark); }
   .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
-  .contact h2 { color: var(--paper); font-size: clamp(32px,4.5vw,52px); font-weight: 300; max-width: 520px; }
-  .contact .lede { color: #BDB9AE; font-size: 19px; max-width: 480px; margin: 22px 0 0; }
-  .contact .alt { color: #9C9A92; font-size: 15px; margin-top: 26px; font-family:'Space Mono',monospace; letter-spacing:0.03em; }
-  .contact .alt a { color: var(--paper); border-bottom: 1px solid rgba(255,255,255,0.4); }
+  .contact h2 { color: var(--st-paper-warm); font-size: clamp(32px,4.3vw,50px); font-weight: 400; max-width: 520px; }
+  .contact .lede { color: var(--st-on-dark-muted); font-size: 19px; max-width: 480px; margin: 22px 0 0; }
+  .contact .alt { color: var(--st-on-dark-muted); font-size: 15px; margin-top: 26px; font-family: var(--st-font-display); letter-spacing: 0.01em; }
+  .contact .alt a { color: var(--st-paper-warm); border-bottom: 1px solid rgba(245,244,240,0.4); transition: color .18s, border-color .18s; }
+  .contact .alt a:hover { color: var(--st-thread-on-dark); border-bottom-color: var(--st-thread-on-dark); }
   form { display: grid; gap: 18px; }
-  form label { font-family:'Space Mono',monospace; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #9C9A92; display:block; margin-bottom: 8px; }
-  form input, form textarea { width:100%; background: transparent; border:none; border-bottom: 1px solid #43483F; color: #fff; font-family: inherit; font-size: 17px; padding: 8px 2px; transition: border-color .2s; }
-  form input:focus, form textarea:focus { outline:none; border-color: #5C9C7F; }
+  form label { font-family: var(--st-font-display); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--st-on-dark-muted); display:block; margin-bottom: 8px; }
+  form input, form textarea { width:100%; background: transparent; border:none; border-bottom: 1px solid #4A4F57; color: var(--st-paper); font-family: inherit; font-size: 17px; padding: 8px 2px; transition: border-color .2s; }
+  form input:focus, form textarea:focus { outline:none; border-color: var(--st-thread-on-dark); }
   form textarea { resize: vertical; min-height: 70px; }
-  .contact form .btn { margin-top: 8px; background:#2E7556; }
-  .contact form .btn:hover { background:#3A8A66; }
+  .contact form .btn { margin-top: 8px; background: var(--st-paper-warm); color: var(--st-ink); }
+  .contact form .btn:hover { background: var(--st-thread-on-dark); color: var(--st-ink); }
 
-  /* ---------- Footer ---------- */
-  footer.site { background: var(--ink-2); color: #7E7C75; padding: 40px 0 56px; font-family:'Space Mono',monospace; font-size: 12.5px; letter-spacing: 0.06em; }
-  footer.site .wrap { display:flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; border-top:1px solid #313630; padding-top: 28px; }
-  footer.site a { color: #BDB9AE; }
+  /* ---------- Footer (dark surface) ---------- */
+  footer.site { background: var(--st-ink); color: var(--st-on-dark-muted); padding: 40px 0 56px; font-family: var(--st-font-display); font-size: 13.5px; letter-spacing: 0.02em; }
+  footer.site .wrap { display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px 28px; border-top:1px solid var(--st-on-dark-line); padding-top: 28px; }
+  footer.site a { color: var(--st-paper-warm); }
+  footer.site a:hover { color: var(--st-thread-on-dark); }
+  footer.site .foot-brand { display: inline-flex; align-items: center; gap: 18px; }
+  footer.site .foot-brand .st-logo { font-size: 20px; }
+  footer.site .foot-brand a:hover .st-logo { color: #F5F4F0; } /* the wordmark never takes the thread colour */
 
   /* ---------- Reveal ---------- */
   .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
@@ -276,7 +299,7 @@
     .hero-grid { grid-template-columns: 1fr; gap: 8px; }
     .system-stage { order: -1; max-width: 420px; margin: 0 auto 10px; }
     .cards { grid-template-columns: 1fr; }
-    .card { border-right: none; border-bottom: 1px solid var(--line-2); }
+    .card { border-right: none; border-bottom: 1px solid var(--st-line-strong); }
     .card:last-child { border-bottom: none; }
     .axis { grid-template-columns: 1fr; gap: 38px; }
     .stop .rail { display: none; }
@@ -285,6 +308,7 @@
   @media (max-width: 760px) {
     .wrap { padding: 0 22px; }
     section { padding: 76px 0; }
+    .brand .st-logo { font-size: 19px; }
   }
 </style>
 </head>
@@ -295,20 +319,8 @@
 
 <header class="site">
   <div class="wrap">
-    <a href="#top" class="brand" aria-label="sharptext — home">
-      <svg class="brand-logo" viewBox="0 0 696 148.848" role="img" aria-label="sharptext" xmlns="http://www.w3.org/2000/svg">
-        <g transform="translate(-8,156.848146) scale(0.1,-0.1)" fill="currentColor" stroke="none">
-          <path d="M957 1564 c-4 -4 -7 -268 -7 -586 l0 -578 75 0 74 0 3 283 c3 281 3 283 29 332 37 72 99 109 193 113 82 4 122 -15 156 -70 19 -31 20 -51 20 -345 l0 -313 76 0 75 0 -3 338 c-3 372 -5 382 -70 449 -99 102 -338 101 -439 -2 -34 -34 -34 -34 -39 173 -5 207 -5 207 -70 210 -36 2 -69 0 -73 -4z"/>
-          <path d="M4317 1493 c-4 -3 -7 -59 -7 -124 0 -118 0 -118 -67 -121 -68 -3 -68 -3 -71 -70 -3 -68 -3 -68 67 -68 l70 0 3 -309 c3 -295 4 -311 24 -338 36 -49 77 -63 192 -63 102 0 102 0 102 65 0 65 0 65 -63 65 -112 0 -107 -14 -107 305 l0 274 83 3 c82 3 82 3 82 68 0 65 0 65 -82 68 -83 3 -83 3 -83 127 0 125 0 125 -68 125 -38 0 -72 -3 -75 -7z"/>
-          <path d="M6727 1493 c-4 -3 -7 -59 -7 -124 0 -118 0 -118 -67 -121 -68 -3 -68 -3 -71 -70 -3 -68 -3 -68 67 -68 l70 0 3 -309 c3 -295 4 -311 24 -338 36 -49 77 -63 192 -63 102 0 102 0 102 65 0 65 0 65 -68 65 -107 0 -102 -14 -102 308 l0 271 83 3 c82 3 82 3 82 68 0 65 0 65 -82 68 -83 3 -83 3 -83 127 0 125 0 125 -68 125 -38 0 -72 -3 -75 -7z"/>
-          <path d="M6355 1278 c-37 -40 -120 -135 -183 -210 -116 -138 -116 -138 -146 -95 -17 24 -73 102 -125 175 -94 132 -94 132 -187 132 l-93 0 165 -232 c90 -127 164 -235 164 -239 0 -4 -72 -93 -160 -198 -88 -104 -160 -192 -160 -195 0 -3 40 -6 90 -6 90 0 90 0 194 156 l103 155 108 -151 c59 -84 113 -154 120 -156 6 -3 49 -4 94 -2 l82 3 -142 200 c-78 110 -148 210 -156 222 -13 20 -5 36 147 263 89 133 159 244 157 246 -2 3 -35 -28 -72 -68z"/>
-          <path d="M352 1258 c-108 -12 -200 -67 -239 -143 -22 -41 -22 -151 0 -192 35 -67 116 -109 287 -149 174 -40 240 -79 240 -141 0 -67 -59 -111 -159 -120 -126 -12 -229 36 -248 115 -9 37 -9 37 -81 40 -72 3 -72 3 -72 -36 0 -49 42 -133 85 -171 62 -54 135 -75 270 -75 134 -1 194 13 263 64 112 81 131 251 38 344 -47 47 -87 64 -236 101 -161 40 -197 54 -225 86 -66 79 6 149 151 149 98 -1 184 -58 184 -122 0 -16 10 -18 76 -18 76 0 76 0 69 43 -17 98 -63 161 -148 197 -60 26 -168 38 -255 28z"/>
-          <path d="M2133 1259 c-160 -15 -268 -108 -281 -242 -5 -48 -5 -48 69 -45 73 3 73 3 81 43 18 83 90 120 218 113 95 -6 128 -24 149 -85 12 -33 12 -46 2 -71 -17 -40 -60 -57 -206 -81 -153 -26 -212 -44 -262 -80 -119 -86 -117 -305 5 -382 116 -73 335 -58 437 32 37 33 45 35 45 14 0 -72 98 -116 189 -84 30 11 31 13 31 70 0 59 0 59 -28 53 -17 -4 -32 -1 -39 8 -7 8 -13 111 -15 293 -5 311 -8 327 -73 383 -59 53 -175 74 -322 61z m245 -522 c-5 -99 -28 -144 -91 -182 -140 -81 -302 -48 -314 65 -9 97 49 138 236 165 62 9 123 20 135 25 37 15 39 12 34 -73z"/>
-          <path d="M3108 1260 c-86 -11 -158 -60 -220 -150 -17 -24 -17 -23 -17 58 -1 83 -1 83 -68 80 l-68 -3 -3 -422 -2 -423 75 0 75 0 0 203 c0 229 9 298 45 373 34 69 92 108 185 125 70 12 70 12 70 91 0 43 -3 77 -7 77 -5 -1 -34 -5 -65 -9z"/>
-          <path d="M3650 1259 c-71 -8 -143 -40 -180 -81 -30 -32 -30 -32 -30 20 0 53 0 53 -72 50 l-73 -3 -3 -582 -2 -583 75 0 75 0 0 211 c0 211 0 211 25 181 13 -16 52 -42 87 -58 56 -26 74 -29 164 -29 94 0 104 2 167 34 119 60 185 163 207 319 31 225 -62 427 -230 500 -45 19 -140 29 -210 21z m136 -148 c54 -24 90 -63 123 -131 23 -49 26 -67 26 -161 0 -101 -2 -109 -35 -175 -41 -81 -96 -121 -176 -130 -109 -13 -205 41 -256 145 -33 68 -34 253 0 327 43 94 117 143 217 143 38 0 75 -6 101 -18z"/>
-          <path d="M5067 1258 c-214 -28 -359 -251 -327 -503 29 -226 159 -360 363 -372 190 -12 330 69 381 221 9 26 16 51 16 56 0 6 -33 10 -74 10 -73 0 -74 0 -79 -29 -10 -48 -62 -99 -120 -116 -164 -49 -315 44 -334 206 -6 49 -6 49 311 49 l318 0 -7 68 c-28 291 -195 443 -448 410z m140 -143 c79 -33 128 -92 147 -177 6 -28 6 -28 -229 -28 -144 0 -235 4 -235 10 0 30 45 120 72 147 63 61 166 81 245 48z"/>
-        </g>
-      </svg>
+    <a href="./" class="brand" aria-label="Sharptext home">
+      <st-logo class="st-logo"><span class="st-logo__word">sharptext</span></st-logo>
     </a>
     <a href="#talk" class="nav-cta">Book a conversation</a>
   </div>
@@ -329,7 +341,7 @@
       <div class="system-stage" aria-hidden="true">
         <!-- Animated network. Node positions and behavior live in the script at the bottom of the page. -->
         <svg id="sys" viewBox="0 0 460 460" role="img">
-          <title>An animated learning network: a signal finds a wandering path from a highlighted knowing node to a doing node, drawing a green trail behind it, then a new pair lights up.</title>
+          <title>An animated learning network: a signal finds a wandering path from a highlighted knowing node to a doing node, drawing a red thread behind it, then a new pair lights up.</title>
           <g id="sys-edges"></g>
           <path id="sys-trail" class="trail" fill="none"></path>
           <g id="sys-nodes"></g>
@@ -463,10 +475,13 @@
 
 <footer class="site">
   <div class="wrap">
-    <span>SHARPTEXT, LEARNING ARCHITECTURE</span>
-    <span><a href="https://www.linkedin.com/in/cosinschi/" target="_blank" rel="noopener">LINKEDIN</a></span>
-    <span><a href="mailto:learning@sharptext.org">LEARNING@SHARPTEXT.ORG</a></span>
-    <span>© 2026</span>
+    <span class="foot-brand">
+      <a href="./" aria-label="Sharptext home"><st-logo class="st-logo st-logo--dark"><span class="st-logo__word">sharptext</span></st-logo></a>
+      <span>Learning architecture</span>
+    </span>
+    <span><a href="https://www.linkedin.com/in/cosinschi/" target="_blank" rel="noopener">LinkedIn</a></span>
+    <span><a href="mailto:learning@sharptext.org">learning@sharptext.org</a></span>
+    <span>© 2026 Sharptext</span>
   </div>
 </footer>
 
@@ -483,7 +498,7 @@
   /* ----------------------------------------------------------------
      Hero network animation.
      A signal wanders a jagged path from one highlighted "knowing"
-     node to a "doing" node, painting a green trail behind it. When it
+     node to a "doing" node, painting a red trail behind it. When it
      arrives, both fade back to gray and a new pair lights up.
      Tweak NODES / EDGES below to reshape the network.
   ---------------------------------------------------------------- */

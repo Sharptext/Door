@@ -1,20 +1,38 @@
-# SharpText website
+# Sharptext website
 
-A single-page static site. No build step, no dependencies — just `index.html`. Hosted free on GitHub Pages at **sharptext.org**.
+A single-page static site. No build step, no dependencies — just `index.html` plus a small logo component. Hosted free on GitHub Pages at **sharptext.org**.
 
 ## Files
 
 - `index.html` — the whole site (copy + styling live here).
 - `assets/logos/` — partner logos shown in the "Partnered with these people" strip.
+- `assets/brand/` — the logo. `st-logo.js` + `st-logo.css` are the one logo component used everywhere; `sharptext-symbol.svg` is the approved symbol artwork.
 - `og-image.png` — the preview image shown when the link is shared (LinkedIn, Slack, etc.). 1200×630.
-- `favicon.svg` — the little icon in the browser tab.
+- `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` — browser and app icons.
+- `tools/render-brand-assets.mjs` — regenerates the PNG/ICO icons and `og-image.png` from the logo component.
 - `404.html` — the page shown for a broken or missing link.
 - `robots.txt`, `sitemap.xml` — help search engines crawl and index the site.
 - `site.webmanifest` — basic app metadata (name, colors, icon).
 - `CNAME` — tells GitHub Pages to serve the site at sharptext.org. Don't delete it.
 - `.nojekyll` — stops GitHub from doing anything clever to the files.
 
-If you change the headline or the green, regenerate `og-image.png` so the share preview matches (just ask, or replace it with any 1200×630 image).
+## The logo and brand colours
+
+Use the component, never an image of the wordmark:
+
+```html
+<!-- horizontal lockup (symbol + "sharptext" in live text) -->
+<st-logo class="st-logo"><span class="st-logo__word">sharptext</span></st-logo>
+
+<!-- symbol alone -->
+<st-logo class="st-logo" variant="symbol"></st-logo>
+```
+
+Add `st-logo--dark` (on dark backgrounds), `st-logo--black` or `st-logo--white` for the other colour versions, and set the size with `font-size` (the wordmark size; minimum 16px). The page needs `assets/brand/st-logo.css` and `assets/brand/st-logo.js`, both already linked in `index.html` and `404.html`.
+
+Colours are defined once as `--st-*` variables at the top of the `<style>` block in `index.html`. The red (`--st-thread`) is the only accent: use it sparingly. The company name is written "Sharptext" in running text; only the logo wordmark is lowercase.
+
+If the logo or colours change, regenerate the icons and share image with `node tools/render-brand-assets.mjs` (needs Playwright and Python with Pillow).
 
 ---
 
@@ -24,7 +42,7 @@ From this folder:
 
 ```bash
 git add .
-git commit -m "Launch SharpText site"
+git commit -m "Launch Sharptext site"
 git push origin main
 ```
 

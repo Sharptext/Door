@@ -1,12 +1,14 @@
 {
-  "name": "SharpText",
-  "short_name": "SharpText",
+  "name": "Sharptext",
+  "short_name": "sharptext",
   "description": "Learning architecture consultancy. We design how learning connects so it shows up in what people can do.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F4F1E9",
-  "theme_color": "#205C43",
+  "background_color": "#FFFFFF",
+  "theme_color": "#16191D",
   "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
     { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
   ]
 }

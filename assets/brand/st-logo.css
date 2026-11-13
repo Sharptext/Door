@@ -1,0 +1,25 @@
+/*
+  Sharptext logo component styles. Pair with st-logo.js.
+  Proportions from the brand spec: symbol height = 1.1 x wordmark font size,
+  gap = 0.26 x font size. Set the size with font-size on .st-logo.
+  Minimum: wordmark 16px; symbol alone 16px.
+*/
+.st-logo {
+  --st-thread: #C2412D;
+  display: inline-flex; align-items: center; gap: 0.26em;
+  color: #16191D;
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-weight: 600; letter-spacing: -0.026em; line-height: 1;
+  font-size: 24px;
+  white-space: nowrap;
+}
+.st-logo__symbol { display: block; width: 1.1em; height: 1.1em; flex: none; }
+.st-logo__word { display: block; }
+
+/* Reserve the symbol's space until the component script has run (no layout shift) */
+.js st-logo:not(:defined)::before { content: ""; display: block; width: 1.1em; height: 1.1em; flex: none; }
+
+/* Colour versions (primary is the default) */
+.st-logo--dark  { color: #F5F4F0; --st-thread: #EE6A52; }
+.st-logo--black { color: #000000; --st-thread: #000000; }
+.st-logo--white { color: #FFFFFF; --st-thread: #FFFFFF; }
