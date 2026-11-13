@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /intro-lab.html
 
 Sitemap: https://sharptext.org/sitemap.xml

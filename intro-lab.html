@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro lab — Sharptext</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* A private page for comparing the intro variants side by side. Not linked from the site. */
+  :root { --st-ink:#16191D; --st-paper:#FFFFFF; --st-paper-warm:#F5F4F0; --st-thread:#C2412D; --st-muted:#4A4F57; --st-line:#E4E3DE; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--st-paper-warm); color: var(--st-ink); font-family: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif; }
+  header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 20px 24px; border-bottom: 1px solid var(--st-line); background: var(--st-paper); position: sticky; top: 0; z-index: 2; }
+  h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+  h1 span { color: var(--st-muted); font-weight: 400; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; }
+  button { font: 600 14px/1 'Schibsted Grotesk', sans-serif; padding: 10px 14px; border: 1px solid var(--st-ink); background: var(--st-paper); color: var(--st-ink); border-radius: 2px; cursor: pointer; }
+  button:hover { background: var(--st-ink); color: var(--st-paper); }
+  button[aria-pressed="true"] { background: var(--st-ink); color: var(--st-paper); }
+  button:focus-visible { outline: 2px solid var(--st-thread); outline-offset: 3px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; padding: 20px 24px 40px; }
+  .mobile .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 760px) { .grid, .mobile .grid { grid-template-columns: 1fr; padding: 16px; } }
+  figure { margin: 0; }
+  figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  figcaption b { font-size: 16px; font-weight: 600; }
+  figcaption small { color: var(--st-muted); font-size: 14px; }
+  figcaption a { color: var(--st-ink); font-size: 14px; }
+  figcaption a:hover { color: var(--st-thread); }
+  .frame { position: relative; overflow: hidden; background: var(--st-paper); border: 1px solid var(--st-line); }
+  .frame iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; }
+  p.note { margin: 0 24px 24px; color: var(--st-muted); font-size: 15px; max-width: 70ch; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Intro lab <span>· four variants, playing together</span></h1>
+  <div class="controls">
+    <button type="button" id="replay">Replay all</button>
+    <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
+    <button type="button" data-device="mobile" aria-pressed="false">Mobile</button>
+  </div>
+</header>
+
+<div class="grid" id="grid"></div>
+<p class="note">Each frame is the real home page with <code>?intro=&lt;variant&gt;</code>. They start on their own after 2.5 seconds; clicking inside a frame skips its intro. Open a variant in its own tab to see it full size, and to try starting it by scrolling.</p>
+
+<script>
+  var VARIANTS = [
+    ['thread', 'Thread', 'Knowing above, doing below; the trail straightens'],
+    ['bridge', 'Bridge', 'Knowing to doing across; the bridge stands up'],
+    ['loom', 'Loom', 'Many lines; the thread runs through the right dots'],
+    ['converge', 'Converge', 'Knowing and doing pulled together as they connect']
+  ];
+  var DEVICES = { desktop: [1280, 800], mobile: [375, 740] };
+  var device = 'desktop';
+  var grid = document.getElementById('grid');
+
+  function build() {
+    var size = DEVICES[device], stamp = Date.now();
+    document.body.classList.toggle('mobile', device === 'mobile');
+    grid.innerHTML = '';
+    VARIANTS.forEach(function (v) {
+      var src = 'index.html?intro=' + v[0] + '&t=' + stamp;
+      var fig = document.createElement('figure');
+      fig.innerHTML = '<figcaption><span><b>' + v[1] + '</b> <small>' + v[2] + '</small></span>' +
+        '<a href="index.html?intro=' + v[0] + '" target="_blank" rel="noopener">Open</a></figcaption>' +
+        '<div class="frame"><iframe title="' + v[1] + ' intro" src="' + src + '" width="' + size[0] + '" height="' + size[1] + '"></iframe></div>';
+      grid.appendChild(fig);
+    });
+    fit();
+  }
+  function fit() {
+    var size = DEVICES[device];
+    grid.querySelectorAll('.frame').forEach(function (f) {
+      var s = f.clientWidth / size[0];
+      f.style.height = Math.round(size[1] * s) + 'px';
+      f.querySelector('iframe').style.transform = 'scale(' + s + ')';
+    });
+  }
+  document.getElementById('replay').addEventListener('click', build);
+  document.querySelectorAll('[data-device]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      device = b.getAttribute('data-device');
+      document.querySelectorAll('[data-device]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+      build();
+    });
+  });
+  window.addEventListener('resize', fit);
+  build();
+</script>
+</body>
+</html>

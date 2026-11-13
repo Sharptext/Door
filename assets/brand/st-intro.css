@@ -57,3 +57,11 @@ html.st-intro.st-intro-reveal footer.site { opacity: 1; transition: opacity .9s 
 #st-intro.sti-word .st-logo__word { opacity: 1; transform: none; }
 
 #st-intro.sti-fly .sti-lockup .st-logo { transition: transform 1s cubic-bezier(.65,0,.25,1); }
+
+/* Loom variant: decoy dots on the lines, and the "right dots" the thread passes through */
+.sti-decoy { fill: #C9CBCF; transition: fill .3s ease, r .3s ease; }
+.sti-stop.sti-on { fill: #C2412D; r: 4.5px; }
+.sti-field, .sti-dots { opacity: 0; transition: opacity .8s ease; }
+#st-intro.sti-ready .sti-field, #st-intro.sti-ready .sti-dots { opacity: 1; }
+/* In the loom the three lines are already in place when the symbol appears */
+#st-intro.sti-lines-ready .sti-lockup .st-line { transition: none; transform: none; }
