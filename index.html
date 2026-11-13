@@ -217,16 +217,26 @@
   .btn .arr { font-family: var(--st-font-display); }
 
   /* ---------- Hero ---------- */
-  .hero { padding: 80px 0 90px; }
-  .hero h1 { font-size: clamp(52px, 7.6vw, 106px); font-weight: 400; letter-spacing: -0.035em; line-height: 1.02; margin: 18px 0 44px; }
+  .hero { padding: 52px 0 90px; }
+  .hero h1 { font-size: clamp(52px, 7.6vw, 106px); font-weight: 400; letter-spacing: -0.035em; line-height: 1.02; margin: 18px 0 30px; }
   /* "knowing" top left, "doing." lower right: the red thread runs between them */
   .kd-k, .kd-d { display: block; width: fit-content; }
-  .kd-d { margin-left: auto; margin-top: clamp(64px, 12vh, 130px); font-style: italic; color: var(--st-thread); }
-  @media (max-width: 760px) { .kd-d { margin-top: clamp(150px, 24vh, 200px); } }
+  .kd-d { margin-left: auto; margin-top: clamp(72px, 14vh, 160px); font-style: italic; color: var(--st-thread); }
+  @media (max-width: 760px) {
+    .hero { padding-top: 30px; }
+    .kd-d { margin-top: clamp(140px, 21vh, 190px); }
+    .hero .lede { font-size: 17px; line-height: 1.55; }
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-  .hero .lede { font-size: clamp(18px, 2vw, 21px); max-width: 600px; margin: 0 0 26px; }
-  .hero .lede + .lede { margin-top: -18px; }
-  .thread-word { color: var(--st-thread); }
+  .hero .lede { font-size: clamp(18px, 2vw, 21px); max-width: 600px; margin: 0 0 18px; }
+  .hero .rt-line { font-family: var(--st-font-display); font-weight: 600; font-size: clamp(23px, 2.6vw, 31px); line-height: 1.25; letter-spacing: -0.012em; color: var(--st-ink); margin: 6px 0 0; }
+  .rt-line .thread-word {
+    color: var(--st-thread);
+    background: linear-gradient(var(--st-thread), var(--st-thread)) no-repeat 0 100% / 0% 2px;
+    padding-bottom: 3px;
+    transition: background-size 1s cubic-bezier(.3,.7,.2,1) .5s;
+  }
+  .rt-line.shown .thread-word { background-size: 100% 2px; }
 
   /* Revealed by scrolling: the closing line of the hero, then the header's call to action */
   .js .on-scroll { opacity: 0; transform: translateY(8px); visibility: hidden; transition: opacity .7s ease, transform .7s ease, visibility 0s linear .7s; }
@@ -241,9 +251,6 @@
   #st-thread .stl-thread { fill: none; stroke: var(--st-thread); stroke-width: 2; stroke-linejoin: round; }
   #st-thread .stl-stop { fill: #C9CBCF; transition: fill .3s ease; }
   #st-thread .stl-stop.on { fill: var(--st-thread); }
-  #st-thread .stl-node { fill: var(--st-paper); stroke: var(--st-thread); stroke-width: 2.4; }
-  #st-thread .stl-node-d, #st-thread .stl-node-d.on { fill: var(--st-thread); }
-  #st-thread .stl-node.on:not(.stl-node-d) { fill: var(--st-paper); }
   #st-thread .stl-tip { fill: var(--st-thread); }
   /* Key words the thread runs under; they take its colour as it reaches them */
   .thread-mark { white-space: nowrap; transition: color .5s ease; }
@@ -363,9 +370,9 @@
   <section class="hero">
     <div class="wrap">
       <p class="mono">Architecture&nbsp;for&nbsp;learning</p>
-      <h1 class="kd"><span class="sr-only">From </span><span class="kd-k" id="kd-knowing">knowing</span><span class="sr-only"> to </span><span class="kd-d" id="kd-doing">doing.</span></h1>
+      <h1 class="kd"><span class="sr-only">From </span><span class="kd-k" id="kd-knowing">knowing</span><span class="sr-only"> to </span><span class="kd-d" id="kd-doing">doing<span id="kd-dot">.</span></span></h1>
       <p class="lede">People are learning all the time! The hard part is making it show up in what they can actually do. Most programs get built one piece at a time, the pieces never connect, and no one can show anything changed.</p>
-      <p class="lede on-scroll" id="red-thread-line">That's the <span class="thread-word">red thread</span> we design for.</p>
+      <p class="lede rt-line on-scroll" id="red-thread-line">That's the <span class="thread-word">red thread</span> we design for.</p>
     </div>
   </section>
 
@@ -513,24 +520,34 @@
     window.addEventListener('beforeprint', showAll);
   }
 
-  // Two scrolls reveal two things: first the hero's closing line, then (on a later,
-  // separate scroll) the "Book a conversation" button beside the logo.
+  // After the intro (or on arrival), a pause, then the hero's closing line appears on its own.
+  // The "Book a conversation" button beside the logo appears only on a later scroll.
   // Keyboard users get both as soon as they press Tab.
   (function () {
     const line = document.getElementById('red-thread-line');
     const cta = document.getElementById('cta-top');
     if (!line || !cta) return;
-    let stage = 0, firstAt = 0, firstY = 0;
+    let lineShown = false, shownAt = 0, shownY = 0;
     const show = (el) => el.classList.add('shown');
-    function advance() {
-      if (document.documentElement.classList.contains('st-intro')) return;   // the intro owns the first scroll
-      const y = window.scrollY;
-      if (stage === 0 && y > 8) { show(line); stage = 1; firstAt = performance.now(); firstY = y; return; }
-      if (stage === 1 && performance.now() - firstAt > 700 && y > firstY + 60) { show(cta); stage = 2; }
-      if (stage === 2) window.removeEventListener('scroll', advance);
+    function showLine() {
+      if (lineShown) return;
+      lineShown = true; shownAt = performance.now(); shownY = window.scrollY;
+      show(line);
+      window.addEventListener('scroll', onScroll, { passive: true });
     }
+    function onScroll() {
+      if (performance.now() - shownAt > 900 && Math.abs(window.scrollY - shownY) > 40) {
+        show(cta);
+        window.removeEventListener('scroll', onScroll);
+      }
+    }
+    const PAUSE = 1600;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { show(line); show(cta); return; }
-    window.addEventListener('scroll', advance, { passive: true });
+    if (document.documentElement.classList.contains('st-intro')) {
+      document.addEventListener('st-intro-done', () => setTimeout(showLine, PAUSE), { once: true });
+    } else {
+      setTimeout(showLine, PAUSE);
+    }
     window.addEventListener('keydown', function (e) { if (e.key === 'Tab') { show(line); show(cta); } });
     cta.addEventListener('focus', function () { show(line); show(cta); });
   })();
