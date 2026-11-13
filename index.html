@@ -16,7 +16,8 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-4YLD39527L');
+      // Don't count page views from inside the intro comparison page (intro-lab.html)
+      if (window.top === window.self) gtag('config', 'G-4YLD39527L');
     </script>
 
 <!-- Icons & manifest -->
