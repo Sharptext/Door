@@ -9,6 +9,7 @@ A single-page static site. No build step, no dependencies — just `index.html` 
 - `og-image.png` — the preview image shown when the link is shared (LinkedIn, Slack, etc.). 1200×630.
 - `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` — browser and app icons.
 - `intro-lab.html` — a private page that plays the intro variants side by side.
+- `assets/brand/st-loom.js` — the woven background and the scroll-drawn red thread.
 - `tools/render-brand-assets.mjs` — regenerates the PNG/ICO icons and `og-image.png` from the logo component.
 - `404.html` — the page shown for a broken or missing link.
 - `robots.txt`, `sitemap.xml` — help search engines crawl and index the site.
@@ -32,9 +33,19 @@ Add `st-logo--dark` (on dark backgrounds), `st-logo--black` or `st-logo--white` 
 
 Colours are defined once as `--st-*` variables at the top of the `<style>` block in `index.html`. The red (`--st-thread`) is the only accent: use it sparingly. The company name is written "Sharptext" in running text; only the logo wordmark is lowercase.
 
-**Intro animation.** On the first visit in a browser session, the home page opens with only "knowing" and "doing" on screen. On scroll, click, key press or after 2.5 seconds, the red thread connects them, becomes the logo's thread, the lines weave through it, and the logo flies into the header as the site appears. A click or key press skips it. It does not play for people who have reduced motion turned on, or for links to a section of the page.
+**Intro animation.** On the first visit in a browser session, the home page opens with only "knowing" and "doing" on screen. On scroll, click, key press or after 2.5 seconds, the red thread connects them and the logo forms, then flies into the header as the site appears. A click or key press skips it. It does not play for people who have reduced motion turned on, or for links to a section of the page.
 
-There are four variants of the journey: `thread` (vertical, the default), `bridge` (horizontal, the bridge stands up), `loom` (many lines; the thread runs through the right dots) and `converge` (knowing and doing pulled together). See one with `?intro=bridge` and so on, or all four side by side at `/intro-lab.html` (not linked from the site, hidden from search engines). To change what visitors get, edit `DEFAULT_VARIANT` at the top of `assets/brand/st-intro.js`; set it to `'random'` to split visitors across the four. Each play is sent to Google Analytics as an `intro_play` event (and `intro_skip` when skipped) with the variant name, so you can compare them. The code lives in `assets/brand/st-intro.js` and `st-intro.css`; to switch the intro off, delete the "Intro animation" block in the `<head>` of `index.html`.
+There are six variants. The loom family is the main one:
+- `loom` (the default): lines across the screen; each line the thread touches thickens, and those three become the logo's lines.
+- `warp`: the same with vertical threads; the composition turns a quarter to become the logo.
+- `net`: a wavy net; the thread finds three nodes, which align into the logo's thread.
+- `thread`, `bridge`, `converge`: earlier, simpler versions.
+
+See one with `?intro=warp` and so on, or all six side by side at `/intro-lab.html` (not linked from the site, hidden from search engines). To change what visitors get, edit `DEFAULT_VARIANT` in the "Intro animation" block in the `<head>` of `index.html`; set it to `'random'` to split visitors across all six. Each play is sent to Google Analytics as an `intro_play` event (and `intro_skip` when skipped) with the variant name. The code is in `assets/brand/st-intro.js` and `st-intro.css`.
+
+**Woven background.** The lines the intro leaves behind stay as a faint background behind the whole page (rows, columns or a net, matching the variant), and a red thread is woven down it as you scroll. It runs in the side margins, crosses over between sections, goes alternately over and under the lines, and ends where "Let's talk" begins. It lives in `assets/brand/st-loom.js`.
+
+**Scroll reveals.** The hero's last line ("That's the red thread we design for.") appears on the first scroll, and the "Book a conversation" button beside the logo appears on a later, separate scroll. Keyboard users get both as soon as they press Tab.
 
 If the logo or colours change, regenerate the icons and share image with `node tools/render-brand-assets.mjs` (needs Playwright and Python with Pillow).
 

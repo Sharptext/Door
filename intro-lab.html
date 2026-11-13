@@ -22,8 +22,8 @@
   button:hover { background: var(--st-ink); color: var(--st-paper); }
   button[aria-pressed="true"] { background: var(--st-ink); color: var(--st-paper); }
   button:focus-visible { outline: 2px solid var(--st-thread); outline-offset: 3px; }
-  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; padding: 20px 24px 40px; }
-  .mobile .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 20px 24px 40px; }
+  .mobile .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   @media (max-width: 760px) { .grid, .mobile .grid { grid-template-columns: 1fr; padding: 16px; } }
   figure { margin: 0; }
   figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
@@ -38,7 +38,7 @@
 </head>
 <body>
 <header>
-  <h1>Intro lab <span>· four variants, playing together</span></h1>
+  <h1>Intro lab <span>· six variants, playing together</span></h1>
   <div class="controls">
     <button type="button" id="replay">Replay all</button>
     <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
@@ -51,9 +51,11 @@
 
 <script>
   var VARIANTS = [
+    ['loom', 'Loom', 'Lines across; touched lines thicken into the logo'],
+    ['warp', 'Warp', 'Vertical threads; the weave turns a quarter into the logo'],
+    ['net', 'Net', 'A wavy net; the right nodes align into the thread'],
     ['thread', 'Thread', 'Knowing above, doing below; the trail straightens'],
     ['bridge', 'Bridge', 'Knowing to doing across; the bridge stands up'],
-    ['loom', 'Loom', 'Many lines; the thread runs through the right dots'],
     ['converge', 'Converge', 'Knowing and doing pulled together as they connect']
   ];
   var DEVICES = { desktop: [1280, 800], mobile: [375, 740] };

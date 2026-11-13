@@ -1,34 +1,33 @@
 /*
-  Sharptext intro animation (home page only). See st-intro.css.
+  Sharptext intro animation (home page only). See st-intro.css and st-loom.js.
 
-  Four variants share one ending: the red thread settles into the logo's thread,
-  the lines weave through it, the wordmark appears, and the logo flies into the header
-  while the site comes into view. They differ in how knowing reaches doing:
+  All variants share one ending: the red thread settles into the logo's thread, the
+  lines are in place, the wordmark appears, and the logo flies into the header while
+  the site comes into view. They differ in how knowing reaches doing:
 
+    loom      lines across the screen; the thread runs through three right dots and
+              each line it touches thickens: those three become the logo's lines
+    warp      the same with vertical threads; the thread weaves across them and the
+              composition turns a quarter so the touched threads become the lines
+    net       a wavy net of vertical and horizontal threads; the thread finds three
+              nodes, their threads thicken, and the nodes align into the logo's thread
     thread    knowing above, doing below; the dot wanders down, the trail straightens
-    bridge    knowing left, doing right; the thread arcs across, flattens, then stands up
-    loom      many lines across the screen; the thread runs through the right dots,
-              weaving over and under; three of the lines become the logo's lines
-    converge  knowing and doing far apart; as the line connects them they are pulled
-              together and the line straightens as it draws
+    bridge    knowing left, doing right; the thread arcs across, flattens, stands up
+    converge  knowing and doing far apart, pulled together as the line connects them
 
-  Choosing a variant:
-    ?intro=thread | bridge | loom | converge   force one (also replays it)
-    ?intro                                     replay the default
-    DEFAULT_VARIANT below                      what visitors get: a variant name, or
-                                               'random' to split visitors across all four
-  Each natural play sends a Google Analytics event "intro_play" (and "intro_skip"
-  when skipped) with the variant name, so variants can be compared.
+  In the loom variants the lines that were not touched stay behind as the page's
+  woven background (drawn by st-loom.js).
+
+  Which variant plays is decided by the small script in the page head (see
+  DEFAULT_VARIANT there; ?intro=<variant> forces one). Each natural play sends a
+  Google Analytics event "intro_play" (and "intro_skip" when skipped) with the
+  variant name, so variants can be compared.
 
   Starts on scroll, wheel, touch, click or key press, or after a few seconds.
   A click or key press while it runs skips to the site. Plays once per browser
-  session. The decision to play is made by the small script in the page head,
-  which adds the st-intro class to <html>. When it finishes (or is skipped) it
-  fires a "st-intro-done" event on document.
+  session. When it finishes (or is skipped) it fires "st-intro-done" on document.
 */
 (function () {
-  var DEFAULT_VARIANT = 'thread';
-  var VARIANTS = ['thread', 'bridge', 'loom', 'converge'];
   var AUTO_START_MS = 2500;
 
   var html = document.documentElement;
@@ -36,11 +35,11 @@
   window.stIntroStarted = true;
   try { sessionStorage.setItem('st-intro-seen', '1'); } catch (e) {}
 
-  var asked = /[?&]intro=([a-z]+)/.exec(location.search);
-  var forced = /[?&]intro\b/.test(location.search);
-  var variant = asked && VARIANTS.indexOf(asked[1]) > -1 ? asked[1] : DEFAULT_VARIANT;
-  if (variant === 'random' || (asked && asked[1] === 'random')) variant = VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
-  if (VARIANTS.indexOf(variant) < 0) variant = 'thread';
+  var forced = /[?&]intro(=|&|$)/.test(location.search);
+  var variant = window.stIntroVariant || 'loom';
+  // The intro's loom lines up with the page's loom, which starts at the top of the page.
+  try { history.scrollRestoration = 'manual'; } catch (e) {}
+  window.scrollTo(0, 0);
   function track(name) {
     if (forced || window.top !== window.self || typeof window.gtag !== 'function') return;
     try { window.gtag('event', name, { intro_variant: variant }); } catch (e) {}
@@ -138,13 +137,17 @@
   function threadPts(n) { var out = []; for (var i = 0; i < n; i++) out.push([G.cx, lerp(G.y1, G.y2, i / (n - 1))]); return out; }
 
   // ---------- the shared ending ----------
-  async function form(linesReady) {
+  async function form(opts) {
+    opts = opts || {};
     ov.classList.add('sti-symbol');
-    if (linesReady) ov.classList.add('sti-lines-ready');
-    [trail, nK, nD, dot, gField, gGaps, gPatches, gDots].forEach(function (e) { e.style.display = 'none'; });
+    if (opts.linesReady) ov.classList.add('sti-lines-ready');
+    var hide = [trail, nK, nD, dot, gGaps, gPatches, gDots];
+    if (!opts.keepField) hide.push(gField);
+    hide.forEach(function (e) { e.style.display = 'none'; });
+    Array.prototype.forEach.call(ov.querySelectorAll('.sti-touched'), function (e) { e.style.display = 'none'; });
     await wait(80);
     ov.classList.add('sti-weave');
-    await wait(linesReady ? 350 : 950);
+    await wait(opts.linesReady ? 350 : 950);
     ov.classList.add('sti-word');
     lock.style.transform = 'translateX(0px)';
     await wait(1150);
@@ -154,6 +157,7 @@
     var a = logo.getBoundingClientRect(), b = to.getBoundingClientRect();
     ov.classList.add('sti-fly');
     html.classList.add('st-intro-reveal');
+    if (opts.keepField) { gField.style.transition = 'opacity .9s ease'; gField.style.opacity = '0'; }
     logo.style.transform = 'translate(' + (b.left - a.left) + 'px,' + (b.top - a.top) + 'px) scale(' + (b.height / a.height) + ')';
     await wait(1050);
     done();
@@ -190,7 +194,7 @@
         var r = lerp(7, 0, clamp01(e * 1.4));
         node(nK, now[0], r); node(nD, now[now.length - 1], r);
       });
-      await form(false);
+      await form();
     }
   };
 
@@ -229,124 +233,7 @@
         var r = lerp(7, 0, clamp01(e * 1.6));
         node(nK, A, r); node(nD, B, r);
       });
-      await form(false);
-    }
-  };
-
-  // 3. loom: lines of text across the screen; the thread runs through the right dots.
-  V.loom = {
-    setup: function () {
-      var g = this, W = G.W, H = G.H;
-      var R = Math.max(9, Math.min(17, Math.round(H / 56)));
-      var lw = 3, top = H * .1, bot = H * .9;
-      g.rows = [];
-      for (var j = 0; j < R; j++) {
-        var y = lerp(top, bot, j / (R - 1));
-        var x0 = W * .06, x1 = W * (.94 - (Math.random() < .35 ? Math.random() * .22 : 0));
-        g.rows.push({ y: y, x0: x0, x1: x1, rect: null });
-      }
-      // knowing on a row left of centre, doing on another right of centre; waypoints between
-      var mid = Math.floor(R / 2), kr = mid - 2, dr = mid + 2;
-      var xK = W * .1, xD = W * .9;
-      var k = W < 600 ? 3 : 4, route = [[xK, kr]], prev = kr, dir = Math.random() < .5 ? -1 : 1;
-      for (var i = 1; i <= k; i++) {
-        var step = 2 + Math.floor(Math.random() * 3);
-        var row = prev + dir * step;
-        if (row < 1 || row > R - 2) { dir = -dir; row = prev + dir * step; }
-        row = Math.max(1, Math.min(R - 2, row));
-        route.push([lerp(xK, xD, i / (k + 1)) + (Math.random() - .5) * W * .05, row]);
-        prev = row; dir = -dir;
-      }
-      route.push([xD, dr]);
-      route.forEach(function (r) { var row = g.rows[r[1]]; if (row.x1 < r[0] + 24) row.x1 = Math.min(W * .94, r[0] + 60); });
-      g.rows.forEach(function (r) { r.rect = el('rect', { x: r.x0, y: r.y - lw / 2, width: r.x1 - r.x0, height: lw, fill: '#DCDCD8' }, gField); });
-      g.pts = route.map(function (r) { return [r[0], g.rows[r[1]].y]; });
-      g.routeRows = route.map(function (r) { return r[1]; });
-
-      // decoy dots on every line, plus the right dots on the route
-      for (j = 0; j < R; j++) {
-        var row2 = g.rows[j], m = 2 + Math.floor(Math.random() * 3);
-        for (var d = 0; d < m; d++) {
-          var x = lerp(row2.x0 + 20, row2.x1 - 20, Math.random());
-          if (g.pts.some(function (p) { return Math.abs(p[0] - x) < 40 && Math.abs(p[1] - row2.y) < 2; })) continue;
-          el('circle', { cx: x, cy: row2.y, r: 3.5, class: 'sti-decoy' }, gDots);
-        }
-      }
-      g.stops = g.pts.slice(1, -1).map(function (p) { return el('circle', { cx: p[0], cy: p[1], r: 3.5, class: 'sti-decoy sti-stop' }, gDots); });
-
-      // where the thread crosses a line: alternately over (gap in the line) and under (line patched on top)
-      g.cross = []; var over = true, acc = 0;
-      for (i = 0; i < g.pts.length - 1; i++) {
-        var a = g.pts[i], b = g.pts[i + 1], segL = Math.hypot(b[0] - a[0], b[1] - a[1]);
-        var ra = g.routeRows[i], rb = g.routeRows[i + 1], lo = Math.min(ra, rb), hi = Math.max(ra, rb);
-        var rowsBetween = [];
-        for (j = lo + 1; j < hi; j++) rowsBetween.push(j);
-        if (rb < ra) rowsBetween.reverse();
-        rowsBetween.forEach(function (jj) {
-          var r = g.rows[jj], f = (r.y - a[1]) / (b[1] - a[1]), x = lerp(a[0], b[0], f);
-          if (x < r.x0 + 4 || x > r.x1 - 4) return;
-          var at = acc + f * segL, gw = 16;
-          if (over) {
-            g.cross.push({ at: at, el: el('rect', { x: x - gw / 2, y: r.y - lw / 2 - 1, width: gw, height: lw + 2, fill: '#FFFFFF', style: 'display:none' }, gGaps) });
-          } else {
-            var pg = el('g', {}, gPatches);
-            el('rect', { x: x - gw / 2 + 2, y: r.y - lw / 2 - 4, width: gw - 4, height: lw + 8, fill: '#FFFFFF' }, pg);
-            el('rect', { x: x - gw / 2, y: r.y - lw / 2, width: gw, height: lw, fill: '#DCDCD8' }, pg);
-          }
-          over = !over;
-        });
-        acc += segL;
-      }
-      node(nK, g.pts[0]); node(nD, g.pts[g.pts.length - 1]);
-      label(lK, g.pts[0][0], g.pts[0][1] - 32); label(lD, g.pts[g.pts.length - 1][0], g.pts[g.pts.length - 1][1] + 20);
-
-      // the three lines that will become the logo's lines: the rows nearest to them
-      var targets = [.26, .50, .74].map(function (f) { return G.s.top + f * G.s.height; });
-      var used = {};
-      g.keep = targets.map(function (ty) {
-        var best = -1, bd = 1e9;
-        g.rows.forEach(function (r, idx) { if (!used[idx] && Math.abs(r.y - ty) < bd) { bd = Math.abs(r.y - ty); best = idx; } });
-        used[best] = true; return best;
-      });
-    },
-    run: async function () {
-      var g = this, L = drawTrail(g.pts, 0, 2.2)[2];
-      var stopAt = [], acc = 0;
-      for (var i = 1; i < g.pts.length - 1; i++) { acc += Math.hypot(g.pts[i][0] - g.pts[i - 1][0], g.pts[i][1] - g.pts[i - 1][1]); stopAt.push(acc); }
-      await animate(Math.min(3000, Math.max(2200, L * 1.6)), function (t) {
-        var tip = drawTrail(g.pts, ease(t)), at = L * ease(t);
-        moveDot(tip);
-        g.cross.forEach(function (c) { if (at >= c.at) c.el.style.display = ''; });
-        stopAt.forEach(function (s, k) { if (at >= s - 1) g.stops[k].classList.add('sti-on'); });
-      });
-      nD.classList.add('sti-on'); dot.style.display = 'none';
-      await wait(450);
-      ov.classList.add('sti-settle');
-      // the field falls away; three lines become the logo's lines; the thread settles into place
-      var to = threadPts(g.pts.length), s = G.s;
-      var lineTo = [[.14, .26, .72], [.14, .50, .72], [.14, .74, .52]].map(function (v) {
-        return { x: s.left + v[0] * s.width, y: s.top + v[1] * s.height, w: v[2] * s.width, h: .11 * s.height };
-      });
-      var from = g.keep.map(function (idx) { var r = g.rows[idx]; return { x: r.x0, y: r.y, w: r.x1 - r.x0, h: 3 }; });
-      var dur = 1300;
-      await animate(dur, function (t) {
-        var e = ease(t), fade = 1 - clamp01(t * 2.2);
-        gDots.style.opacity = fade; gPatches.style.opacity = fade; gGaps.style.opacity = fade;
-        g.rows.forEach(function (r, idx) { if (g.keep.indexOf(idx) < 0) r.rect.style.opacity = fade; });
-        g.keep.forEach(function (idx, k) {
-          var a = from[k], b = lineTo[k], h = lerp(a.h, b.h, e), y = lerp(a.y, b.y, e);
-          var rr = g.rows[idx].rect;
-          rr.setAttribute('x', lerp(a.x, b.x, e)); rr.setAttribute('width', lerp(a.w, b.w, e));
-          rr.setAttribute('y', y - h / 2); rr.setAttribute('height', h);
-          rr.setAttribute('fill', mixColor('#DCDCD8', '#16191D', e));
-        });
-        // the thread straightens a beat later than the field moves
-        var e2 = ease(clamp01((t - .15) / .85)), now = g.pts.map(function (p, i) { return mix(p, to[i], e2); });
-        drawTrail(now, 1, lerp(2.2, G.tw, e2));
-        var r = lerp(7, 0, clamp01(t * 2));
-        node(nK, now[0], r); node(nD, now[now.length - 1], r);
-      });
-      await form(true);
+      await form();
     }
   };
 
@@ -378,9 +265,197 @@
         label(lK, now[0][0], now[0][1] - 34); label(lD, now[now.length - 1][0], now[now.length - 1][1] + 22);
         if (t > .7) ov.classList.add('sti-settle');
       });
-      await form(false);
+      await form();
     }
   };
+
+  // ---------- the loom family: loom (rows), warp (columns), net ----------
+  var LINE = '#DCDCD8', LINE_BG = '#EFEFEF', INK = '#16191D';
+  function loomVariant(type) {
+    return {
+      setup: function () {
+        var g = this, W = G.W, H = G.H + 60, svg = q('.sti-svg');
+        g.type = type;
+        g.loom = window.stLoom.build(type, W, H);
+        g.lw = type === 'net' ? 2 : 2.5;
+        g.lines = g.loom.lines;
+        g.lines.forEach(function (l) { l.el = el('path', { d: pathD(l.pts), fill: 'none', stroke: LINE, 'stroke-width': g.lw }, gField); });
+
+        // masks make the weave: gaps in the lines (thread over) and in the thread (thread under)
+        var defs = el('defs', {}, svg);
+        g.mLines = el('mask', { id: 'sti-m-lines', maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: W, height: H }, defs);
+        el('rect', { width: W, height: H, fill: '#fff' }, g.mLines);
+        g.mThread = el('mask', { id: 'sti-m-thread', maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: W, height: H }, defs);
+        el('rect', { width: W, height: H, fill: '#fff' }, g.mThread);
+        gField.setAttribute('mask', 'url(#sti-m-lines)');
+        trail.setAttribute('mask', 'url(#sti-m-thread)');
+
+        // the route: knowing, three right dots, doing
+        var xsF = [.07, .3, .5, .7, .93].map(function (f, i) { return G.W * f + (i && i < 4 ? (Math.random() - .5) * G.W * .06 : 0); });
+        var stops = [];
+        if (type === 'rows') {
+          var cand = g.lines.filter(function (l) { return l.pts[0][1] > G.H * .18 && l.pts[0][1] < G.H * .82; }).map(function (l) { return l.idx; });
+          var picks = walk(cand, 5);
+          stops = picks.map(function (j, i) { return { p: [xsF[i], g.lines[j].pts[0][1]], line: g.lines[j] }; });
+        } else if (type === 'columns') {
+          var ys = zig(5, G.H * .22, G.H * .78);
+          stops = xsF.map(function (x, i) {
+            if (i === 0 || i === 4) return { p: [x, ys[i]], line: null };
+            var sn = g.loom.snap([x, ys[i]]); return { p: sn.p, line: sn.line };
+          });
+          // distinct columns for the three stops
+          for (var i = 2; i < 4; i++) if (stops[i].line === stops[i - 1].line) { var sn2 = g.loom.snap([stops[i].p[0] + window.stLoom.S, ys[i]]); stops[i] = { p: sn2.p, line: sn2.line }; }
+        } else {
+          var rowsOk = [];
+          for (var j = 0; j < g.loom.rows; j++) { var yy = g.loom.node(0, j)[1]; if (yy > G.H * .18 && yy < G.H * .82) rowsOk.push(j); }
+          var rp = walk(rowsOk, 5);
+          stops = xsF.map(function (x, i) { var sn = g.loom.snap([x, g.loom.node(0, rp[i])[1]]); return { p: sn.p, line: sn.line }; });
+        }
+        g.stops = stops;
+        g.pts = stops.map(function (st) { return st.p; });
+        if (type !== 'columns') { stops[0].line = null; stops[4].line = null; }   // knowing and doing sit on lines but don't touch them
+
+        // the right dots and the decoys
+        g.stopDots = stops.slice(1, 4).map(function (st) { return el('circle', { cx: st.p[0], cy: st.p[1], r: 3.5, class: 'sti-decoy sti-stop' }, gDots); });
+        decoys(g);
+
+        // weave crossings along the route
+        g.over = [];
+        var flip = true;
+        window.stLoom.crossings(g.pts, g.lines, 6).forEach(function (c) {
+          if (stops.some(function (st) { return st.line === c.line; })) return;   // the touched lines are crossed at their dots
+          if (flip) g.over.push({ at: c.at, el: el('circle', { cx: c.x, cy: c.y, r: 0, fill: '#000' }, g.mLines) });
+          else el('circle', { cx: c.x, cy: c.y, r: g.lw / 2 + 2.5, fill: '#000' }, g.mThread);
+          flip = !flip;
+        });
+
+        node(nK, g.pts[0]); node(nD, g.pts[4]);
+        if (type === 'columns') { label(lK, g.pts[0][0], g.pts[0][1] - 32); label(lD, g.pts[4][0], g.pts[4][1] - 32); }
+        else { label(lK, g.pts[0][0], g.pts[0][1] - 32); label(lD, g.pts[4][0], g.pts[4][1] + 20); }
+      },
+      run: async function () {
+        var g = this, L = drawTrail(g.pts, 0, 2.2)[2];
+        var stopAt = [], acc = 0;
+        for (var i = 1; i < g.pts.length; i++) { acc += Math.hypot(g.pts[i][0] - g.pts[i - 1][0], g.pts[i][1] - g.pts[i - 1][1]); stopAt.push(acc); }
+        var touched = [false, false, false];
+        await animate(Math.min(3200, Math.max(2400, L * 1.7)), function (t) {
+          var at = L * ease(t), tip = drawTrail(g.pts, ease(t));
+          moveDot(tip);
+          g.over.forEach(function (o) { if (at >= o.at) o.el.setAttribute('r', 4.5); });
+          for (var k = 0; k < 3; k++) if (!touched[k] && at >= stopAt[k] - 1) { touched[k] = true; touch(g, k); }
+        });
+        nD.classList.add('sti-on'); dot.style.display = 'none';
+        await wait(450);
+        ov.classList.add('sti-settle');
+        gField.removeAttribute('mask'); trail.removeAttribute('mask');
+        g.lines.forEach(function (l) { l.el.style.transition = 'none'; });
+
+        // the touched lines take their place as the logo's lines; rank top to bottom (left to right for the warp)
+        var s = G.s, key = g.type === 'columns' ? 0 : 1;
+        var order = [0, 1, 2].sort(function (a, b) { return g.stops[a + 1].p[key] - g.stops[b + 1].p[key]; });
+        var rank = []; order.forEach(function (stopIdx, r) { rank[stopIdx] = r; });
+        var logoY = [.26, .50, .74].map(function (f) { return s.top + f * s.height; });
+        var logoX0 = s.left + .14 * s.width, logoX1 = [s.left + .86 * s.width, s.left + .86 * s.width, s.left + .66 * s.width];
+        var lh = .11 * s.height;
+        var moves = g.stops.slice(1, 4).map(function (st, k) {
+          var r = rank[k], l = st.line, n = l.pts.length;
+          var from = l.pts.map(function (p) { return p.slice(); });
+          var A = [logoX0, logoY[r]], B = [logoX1[r], logoY[r]];
+          return { l: l, from: from, A: A, B: B, n: n };
+        });
+        var to = g.pts.map(function (p, i) {
+          if (i === 0) return [G.cx, G.y1];
+          if (i === 4) return [G.cx, G.y2];
+          return [G.cx, logoY[rank[i - 1]]];
+        });
+        var w0 = g.lw * 2.4;
+        await animate(1400, function (t) {
+          var e = ease(t), fade = 1 - clamp01(t * 2.2);
+          gDots.style.opacity = fade;
+          g.lines.forEach(function (l) {
+            if (l.touched) return;
+            l.el.setAttribute('stroke', mixColor(LINE, LINE_BG, clamp01(t * 1.5)));
+            l.el.setAttribute('stroke-width', lerp(g.lw, 1, clamp01(t * 1.5)));
+          });
+          moves.forEach(function (m) {
+            var pts;
+            if (g.type === 'columns') {
+              // turn a quarter, clockwise, while shrinking to the logo line
+              var c0 = [(m.from[0][0] + m.from[1][0]) / 2, (m.from[0][1] + m.from[1][1]) / 2], c1 = [(m.A[0] + m.B[0]) / 2, m.A[1]];
+              var len0 = Math.abs(m.from[1][1] - m.from[0][1]), len1 = m.B[0] - m.A[0];
+              var c = mix(c0, c1, e), a = Math.PI / 2 + e * Math.PI / 2, len = lerp(len0, len1, e);
+              var dx = Math.cos(a) * len / 2, dy = Math.sin(a) * len / 2;
+              pts = [[c[0] - dx, c[1] - dy], [c[0] + dx, c[1] + dy]];
+            } else {
+              pts = m.from.map(function (p, i) { var u = m.n > 1 ? i / (m.n - 1) : 0; return mix(p, [lerp(m.A[0], m.B[0], u), m.A[1]], e); });
+            }
+            m.l.el.setAttribute('d', pathD(pts));
+            m.l.el.setAttribute('stroke-width', lerp(w0, lh, e));
+          });
+          var e2 = ease(clamp01((t - .1) / .9)), now = g.pts.map(function (p, i) { return mix(p, to[i], e2); });
+          drawTrail(now, 1, lerp(2.2, G.tw, e2));
+          var r = lerp(7, 0, clamp01(t * 2));
+          node(nK, now[0], r); node(nD, now[4], r);
+        });
+        await form({ linesReady: true, keepField: true });
+      }
+    };
+  }
+  // a random walk through candidate indices: distinct, consecutive picks at least 2 apart
+  function walk(cand, n) {
+    var out = [], tries = 0;
+    while (out.length < n && tries < 500) {
+      tries++;
+      var c = cand[Math.floor(Math.random() * cand.length)];
+      if (out.indexOf(c) > -1) continue;
+      if (out.length && Math.abs(c - out[out.length - 1]) < 2) continue;
+      out.push(c);
+    }
+    while (out.length < n) out.push(cand[out.length % cand.length]);
+    return out;
+  }
+  function zig(n, lo, hi) {
+    var out = [], up = Math.random() < .5;
+    for (var i = 0; i < n; i++) { var f = up ? .1 + .3 * Math.random() : .6 + .3 * Math.random(); out.push(lerp(lo, hi, f)); up = !up; }
+    return out;
+  }
+  function decoys(g) {
+    var W = G.W, H = G.H;
+    if (g.type === 'net') {
+      for (var i = 0; i < g.loom.cols; i++) for (var j = 0; j < g.loom.rows; j++) {
+        if (Math.random() > .3) continue;
+        var p = g.loom.node(i, j);
+        if (p[1] > H) continue;
+        if (g.pts.some(function (q) { return Math.hypot(q[0] - p[0], q[1] - p[1]) < 20; })) continue;
+        el('circle', { cx: p[0], cy: p[1], r: 2.5, class: 'sti-decoy' }, gDots);
+      }
+      return;
+    }
+    g.lines.forEach(function (l) {
+      var m = 2 + Math.floor(Math.random() * 3);
+      for (var d = 0; d < m; d++) {
+        var u = .05 + .9 * Math.random();
+        var p = [lerp(l.pts[0][0], l.pts[l.pts.length - 1][0], u), lerp(l.pts[0][1], l.pts[l.pts.length - 1][1], u)];
+        if (p[1] > H || p[1] < 0) continue;
+        if (g.pts.some(function (q) { return Math.hypot(q[0] - p[0], q[1] - p[1]) < 36; })) continue;
+        el('circle', { cx: p[0], cy: p[1], r: 3.5, class: 'sti-decoy' }, gDots);
+      }
+    });
+  }
+  // the thread touches a line at a right dot: the line thickens and darkens
+  function touch(g, k) {
+    var st = g.stops[k + 1];
+    g.stopDots[k].classList.add('sti-on');
+    if (!st.line) return;
+    st.line.touched = true;
+    st.line.el.classList.add('sti-touched');
+    st.line.el.style.transition = 'stroke .45s ease, stroke-width .45s ease';
+    st.line.el.setAttribute('stroke', INK);
+    st.line.el.setAttribute('stroke-width', g.lw * 2.4);
+  }
+  V.loom = loomVariant('rows');
+  V.warp = loomVariant('columns');
+  V.net = loomVariant('net');
 
   // ---------- lifecycle ----------
   function done(skipped) {

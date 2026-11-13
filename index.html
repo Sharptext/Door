@@ -52,15 +52,28 @@
 <link rel="stylesheet" href="assets/brand/st-logo.css">
 <script src="assets/brand/st-logo.js" defer></script>
 
-<!-- Intro animation: decide before first paint whether it plays (once per session; ?intro forces it) -->
+<!-- Intro animation and woven background.
+     Decides before first paint whether the intro plays (once per session) and which variant.
+     DEFAULT_VARIANT is what visitors get: loom | warp | net | thread | bridge | converge,
+     or 'random' to split visitors across all of them. ?intro=<variant> forces one. -->
 <link rel="stylesheet" href="assets/brand/st-intro.css">
 <script>
   (function () {
+    var DEFAULT_VARIANT = 'loom';
+    var VARIANTS = ['loom', 'warp', 'net', 'thread', 'bridge', 'converge'];
     try {
-      var d = document.documentElement, force = /[?&]intro\b/.test(location.search), seen = false;
-      try { seen = !!sessionStorage.getItem('st-intro-seen'); } catch (e) {}
+      var d = document.documentElement, m = /[?&]intro(?:=([a-z]+))?(?:&|$)/.exec(location.search);
+      var seen = false, v = null;
+      try { seen = !!sessionStorage.getItem('st-intro-seen'); v = sessionStorage.getItem('st-intro-variant'); } catch (e) {}
+      var asked = m && m[1];
+      if (asked && VARIANTS.indexOf(asked) > -1) v = asked;
+      else if (m || !v) v = (asked === 'random') ? 'random' : DEFAULT_VARIANT;
+      if (v === 'random') v = VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
+      if (VARIANTS.indexOf(v) < 0) v = 'loom';
+      window.stIntroVariant = v;
+      try { sessionStorage.setItem('st-intro-variant', v); } catch (e) {}
       var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (force || (!seen && !calm && !location.hash)) {
+      if (m || (!seen && !calm && !location.hash)) {
         d.classList.add('st-intro');
         // Safety net: if the intro script never starts, show the site anyway.
         setTimeout(function () {
@@ -72,6 +85,7 @@
     } catch (e) {}
   })();
 </script>
+<script src="assets/brand/st-loom.js" defer></script>
 <script src="assets/brand/st-intro.js" defer></script>
 
 <!-- Structured data: helps search engines understand who Sharptext is -->
@@ -204,23 +218,25 @@
 
   /* ---------- Hero ---------- */
   .hero { padding: 80px 0 90px; }
-  .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; align-items: center; }
   .hero h1 { font-size: clamp(52px, 7.6vw, 106px); font-weight: 400; letter-spacing: -0.035em; line-height: 1.02; margin: 18px 0 30px; }
   .hero h1 .doing { font-style: italic; color: var(--st-thread); }
-  .hero .lede { font-size: clamp(18px, 2vw, 21px); max-width: 520px; margin: 0 0 38px; }
-  .system-stage { position: relative; }
-  .system-stage svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .hero .lede { font-size: clamp(18px, 2vw, 21px); max-width: 600px; margin: 0 0 26px; }
+  .hero .lede + .lede { margin-top: -18px; }
+  .thread-word { color: var(--st-thread); }
 
-  /* SVG system (animated network): the signal leaves a red thread behind it */
-  .sys-edge { stroke: var(--st-line-strong); stroke-width: 1; fill: none; }   /* faint static web */
-  .n { fill: var(--st-paper); stroke: var(--st-node); stroke-width: 1.5; transition: stroke .45s ease, stroke-width .45s ease; }
-  .n.kn { stroke: var(--st-thread); stroke-width: 2.4; }                     /* active "knowing" (hollow) */
-  .n.dg { stroke: var(--st-thread); fill: var(--st-thread); }                /* active "doing" (filled) */
-  .trail { stroke: var(--st-thread); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .signal { fill: var(--st-thread); }
-  .svg-label { font-family: var(--st-font-display); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; fill: var(--st-muted); }
-  /* paper outline so labels stay fully readable over the network lines */
-  .svg-label.halo { paint-order: stroke; stroke: var(--st-paper); stroke-width: 5px; stroke-linejoin: round; }
+  /* Revealed by scrolling: the closing line of the hero, then the header's call to action */
+  .js .on-scroll { opacity: 0; transform: translateY(8px); visibility: hidden; transition: opacity .7s ease, transform .7s ease, visibility 0s linear .7s; }
+  .js .on-scroll.shown { opacity: 1; transform: none; visibility: visible; transition: opacity .7s ease, transform .7s ease, visibility 0s; }
+  @media (prefers-reduced-motion: reduce) { .js .on-scroll { transition: none; } }
+
+  /* The woven background (assets/brand/st-loom.js): faint lines behind the page, and the red thread */
+  #st-loom { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; overflow: visible; }
+  #st-loom .stl-lines path { fill: none; stroke: rgba(22,25,29,0.07); stroke-width: 1; }
+  #st-loom .stl-thread { fill: none; stroke: var(--st-thread); stroke-width: 2; stroke-linejoin: round; }
+  #st-loom .stl-stop { fill: #C9CBCF; transition: fill .3s ease; }
+  #st-loom .stl-stop.on { fill: var(--st-thread); }
+  #st-loom .stl-tip { fill: var(--st-thread); }
+  @media print { #st-loom { display: none; } }
 
   /* ---------- Lead-in prose ---------- */
   .lead-in { max-width: 760px; }
@@ -296,8 +312,6 @@
 
   /* ---------- Responsive ---------- */
   @media (max-width: 900px) {
-    .hero-grid { grid-template-columns: 1fr; gap: 8px; }
-    .system-stage { order: -1; max-width: 420px; margin: 0 auto 10px; }
     .cards { grid-template-columns: 1fr; }
     .card { border-right: none; border-bottom: 1px solid var(--st-line-strong); }
     .card:last-child { border-bottom: none; }
@@ -312,6 +326,7 @@
     section.logos { padding: 60px 0; }
     section.contact { padding: 92px 0 84px; }
     .brand .st-logo { font-size: 19px; }
+    .nav-cta { font-size: 12px; letter-spacing: 0.06em; padding: 8px 11px; }
   }
 </style>
 </head>
@@ -325,7 +340,7 @@
     <a href="./" class="brand" aria-label="Sharptext home">
       <st-logo class="st-logo"><span class="st-logo__word">sharptext</span></st-logo>
     </a>
-    <a href="#talk" class="nav-cta">Book a conversation</a>
+    <a href="#talk" class="nav-cta on-scroll" id="cta-top">Book a conversation</a>
   </div>
 </header>
 
@@ -333,26 +348,11 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <p class="mono">Architecture&nbsp;for&nbsp;learning</p>
-        <h1>From knowing<br>to <span class="doing">doing.</span></h1>
-        <p class="lede">People go through learning all the time. The hard part is making it show up where it counts, in what they can actually do. Most programs get built one piece at a time, the pieces never connect, and no one can show anything changed. That's the part we design for.</p>
-        <a href="#talk" class="btn">Book a Learning Architecture Conversation <span class="arr">&rarr;</span></a>
-      </div>
-
-      <div class="system-stage" aria-hidden="true">
-        <!-- Animated network. Node positions and behavior live in the script at the bottom of the page. -->
-        <svg id="sys" viewBox="0 0 460 460" role="img">
-          <title>An animated learning network: a signal finds a wandering path from a highlighted knowing node to a doing node, drawing a red thread behind it that stays in place.</title>
-          <g id="sys-edges"></g>
-          <path id="sys-trail" class="trail" fill="none"></path>
-          <g id="sys-nodes"></g>
-          <circle id="sys-dot" class="signal" r="4.5" style="display:none"></circle>
-          <text id="sys-lblK" class="svg-label halo" style="display:none">knowing</text>
-          <text id="sys-lblD" class="svg-label halo" style="display:none">doing</text>
-        </svg>
-      </div>
+    <div class="wrap">
+      <p class="mono">Architecture&nbsp;for&nbsp;learning</p>
+      <h1>From knowing<br>to <span class="doing">doing.</span></h1>
+      <p class="lede">People are learning all the time! The hard part is making it show up in what they can actually do. Most programs get built one piece at a time, the pieces never connect, and no one can show anything changed.</p>
+      <p class="lede on-scroll" id="red-thread-line">That's the <span class="thread-word">red thread</span> we design for.</p>
     </div>
   </section>
 
@@ -500,146 +500,26 @@
     window.addEventListener('beforeprint', showAll);
   }
 
-  /* ----------------------------------------------------------------
-     Hero network animation.
-     A signal wanders a jagged path, once, from one highlighted "knowing"
-     node to a "doing" node, painting a red trail behind it.
-     The trail then stays in place.
-     Tweak NODES / EDGES below to reshape the network.
-  ---------------------------------------------------------------- */
+  // Two scrolls reveal two things: first the hero's closing line, then (on a later,
+  // separate scroll) the "Book a conversation" button beside the logo.
+  // Keyboard users get both as soon as they press Tab.
   (function () {
-    const svg = document.getElementById('sys');
-    if (!svg) return;
-    const NS = 'http://www.w3.org/2000/svg';
-
-    // Node positions (viewBox is 0 0 460 460)
-    const NODES = [
-      [60,215],[50,300],[105,360],[155,205],[240,175],[320,140],[395,105],
-      [150,95],[245,300],[110,140],[330,260],[380,330],[205,110]
-    ];
-    // Faint static web (pairs of node indices)
-    const EDGES = [
-      [0,1],[1,2],[0,3],[1,3],[2,3],[2,8],[3,8],[8,10],[4,12],[12,7],
-      [7,9],[9,0],[4,9],[5,10],[10,11],[10,6],[5,12],[8,11]
-    ];
-
-    const gEdges = svg.querySelector('#sys-edges');
-    const gNodes = svg.querySelector('#sys-nodes');
-    const trail  = svg.querySelector('#sys-trail');
-    const dot    = svg.querySelector('#sys-dot');
-    const lblK   = svg.querySelector('#sys-lblK');
-    const lblD   = svg.querySelector('#sys-lblD');
-
-    EDGES.forEach(([a,b]) => {
-      const l = document.createElementNS(NS,'line');
-      l.setAttribute('x1',NODES[a][0]); l.setAttribute('y1',NODES[a][1]);
-      l.setAttribute('x2',NODES[b][0]); l.setAttribute('y2',NODES[b][1]);
-      l.setAttribute('class','sys-edge');
-      gEdges.appendChild(l);
-    });
-    const circ = NODES.map(([x,y]) => {
-      const c = document.createElementNS(NS,'circle');
-      c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',7);
-      c.setAttribute('class','n');
-      gNodes.appendChild(c); return c;
-    });
-
-    const dist = (a,b) => Math.hypot(NODES[a][0]-NODES[b][0], NODES[a][1]-NODES[b][1]);
-    const easeInOut = t => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
-
-    function placeLabel(el, i) {
-      const [x,y] = NODES[i];
-      const lx = Math.max(30, Math.min(430, x));
-      const ly = y > 70 ? y - 14 : y + 22;
-      el.setAttribute('x',lx); el.setAttribute('y',ly);
-      el.setAttribute('text-anchor','middle');
-      el.style.display = '';
+    const line = document.getElementById('red-thread-line');
+    const cta = document.getElementById('cta-top');
+    if (!line || !cta) return;
+    let stage = 0, firstAt = 0, firstY = 0;
+    const show = (el) => el.classList.add('shown');
+    function advance() {
+      if (document.documentElement.classList.contains('st-intro')) return;   // the intro owns the first scroll
+      const y = window.scrollY;
+      if (stage === 0 && y > 8) { show(line); stage = 1; firstAt = performance.now(); firstY = y; return; }
+      if (stage === 1 && performance.now() - firstAt > 700 && y > firstY + 60) { show(cta); stage = 2; }
+      if (stage === 2) window.removeEventListener('scroll', advance);
     }
-    function resetNodes() {
-      circ.forEach(c => { c.setAttribute('class','n'); c.setAttribute('r',7); });
-    }
-    function pickPair() {
-      let a,b,t=0;
-      do { a = Math.random()*NODES.length|0; b = Math.random()*NODES.length|0; t++; }
-      while ((a===b || dist(a,b) < 190) && t < 80);
-      return [a,b];
-    }
-    // Build a wandering, non-direct route through a few scattered nodes.
-    function buildRoute(ks,ke) {
-      const ax = NODES[ke][0]-NODES[ks][0], ay = NODES[ke][1]-NODES[ks][1];
-      const L = Math.hypot(ax,ay) || 1, ux = ax/L, uy = ay/L;
-      const proj = i => (NODES[i][0]-NODES[ks][0])*ux + (NODES[i][1]-NODES[ks][1])*uy;
-      let cand = [];
-      for (let i=0;i<NODES.length;i++){ if(i===ks||i===ke) continue; const p=proj(i); if(p>L*0.05 && p<L*0.95) cand.push(i); }
-      for (let i=cand.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [cand[i],cand[j]]=[cand[j],cand[i]]; }
-      let mid = cand.slice(0, 3 + (Math.random()*3|0));
-      mid.sort((a,b)=> proj(a)-proj(b));
-      for (let i=0;i<mid.length-1;i++){ if(Math.random()<0.5){ [mid[i],mid[i+1]]=[mid[i+1],mid[i]]; } }
-      return [ks, ...mid, ke];
-    }
-
-    let raf = null;
-    function cycle() {
-      const [ks,ke] = pickPair();
-      const route = buildRoute(ks,ke);
-      const d = 'M' + route.map(i => NODES[i][0]+','+NODES[i][1]).join(' L');
-      trail.setAttribute('d', d);
-      const L = trail.getTotalLength();
-      trail.style.transition = 'none';
-      trail.style.opacity = '1';
-      trail.setAttribute('stroke-dasharray', L + ' ' + (L+1));
-      trail.setAttribute('stroke-dashoffset', L);   // fully hidden ahead of the dot
-
-      resetNodes();
-      circ[ks].setAttribute('class','n kn'); circ[ks].setAttribute('r',9);
-      circ[ke].setAttribute('class','n dg'); circ[ke].setAttribute('r',10);
-      placeLabel(lblK, ks); placeLabel(lblD, ke);
-
-      dot.style.transition = 'none';
-      dot.style.opacity = '1';
-      dot.style.display = '';
-
-      const dur = Math.min(5200, Math.max(2800, L*7));
-      const t0 = performance.now();
-      function frame(now) {
-        let t = (now - t0)/dur; if (t>1) t = 1;
-        const cur = L * easeInOut(t);
-        const pt = trail.getPointAtLength(cur);
-        dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
-        trail.setAttribute('stroke-dashoffset', L - cur);  // reveal only where the dot has been
-        if (t < 1) raf = requestAnimationFrame(frame);
-        else finish();
-      }
-      raf = requestAnimationFrame(frame);
-    }
-    // Once the signal arrives, the thread stays: no loop, nothing keeps moving.
-    function finish() {
-      dot.style.transition = 'opacity .6s ease'; dot.style.opacity = '0';
-    }
-
-    function start() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      // Static state: one knowing, one doing, full route drawn.
-      const ks = 0, ke = 6, route = buildRoute(ks,ke);
-      trail.setAttribute('d', 'M' + route.map(i => NODES[i][0]+','+NODES[i][1]).join(' L'));
-      const L = trail.getTotalLength();
-      trail.setAttribute('stroke-dasharray', L + ' ' + (L+1));
-      trail.setAttribute('stroke-dashoffset', 0); trail.style.opacity = '1';
-      circ[ks].setAttribute('class','n kn'); circ[ks].setAttribute('r',9);
-      circ[ke].setAttribute('class','n dg'); circ[ke].setAttribute('r',10);
-      const pt = trail.getPointAtLength(L);
-      dot.setAttribute('cx',pt.x); dot.setAttribute('cy',pt.y); dot.style.display = '';
-      placeLabel(lblK, ks); placeLabel(lblD, ke);
-    } else {
-      cycle();
-    }
-    }
-    // Hold the hero animation until the intro has handed over to the page.
-    if (document.documentElement.classList.contains('st-intro')) {
-      document.addEventListener('st-intro-done', start, { once: true });
-    } else {
-      start();
-    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { show(line); show(cta); return; }
+    window.addEventListener('scroll', advance, { passive: true });
+    window.addEventListener('keydown', function (e) { if (e.key === 'Tab') { show(line); show(cta); } });
+    cta.addEventListener('focus', function () { show(line); show(cta); });
   })();
 </script>
 
