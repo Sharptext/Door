@@ -54,18 +54,19 @@
 
 <!-- Intro animation and woven background.
      Decides before first paint whether the intro plays (once per session) and which variant.
-     DEFAULT_VARIANT is what visitors get: loom | warp | net | thread | bridge | converge,
-     or 'random' to split visitors across all of them. ?intro=<variant> forces one. -->
+     DEFAULT_VARIANT is what visitors get: loom | warp | net-h | net-v, or 'random' to
+     split visitors across all of them. ?intro=<variant> forces one. -->
 <link rel="stylesheet" href="assets/brand/st-intro.css">
 <script>
   (function () {
     var DEFAULT_VARIANT = 'loom';
-    var VARIANTS = ['loom', 'warp', 'net', 'thread', 'bridge', 'converge'];
+    var VARIANTS = ['loom', 'warp', 'net-h', 'net-v'];
     try {
-      var d = document.documentElement, m = /[?&]intro(?:=([a-z]+))?(?:&|$)/.exec(location.search);
+      var d = document.documentElement, m = /[?&]intro(?:=([a-z-]+))?(?:&|$)/.exec(location.search);
       var seen = false, v = null;
       try { seen = !!sessionStorage.getItem('st-intro-seen'); v = sessionStorage.getItem('st-intro-variant'); } catch (e) {}
       var asked = m && m[1];
+      if (asked === 'net') asked = 'net-h';
       if (asked && VARIANTS.indexOf(asked) > -1) v = asked;
       else if (m || !v) v = (asked === 'random') ? 'random' : DEFAULT_VARIANT;
       if (v === 'random') v = VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
@@ -194,8 +195,7 @@
   /* ---------- Header ---------- */
   header.site {
     position: sticky; top: 0; z-index: 20;
-    background: rgba(255,255,255,0.86);
-    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.96);
     border-bottom: 1px solid var(--st-line);
   }
   header.site .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 18px; padding-bottom: 18px; }
@@ -218,8 +218,12 @@
 
   /* ---------- Hero ---------- */
   .hero { padding: 80px 0 90px; }
-  .hero h1 { font-size: clamp(52px, 7.6vw, 106px); font-weight: 400; letter-spacing: -0.035em; line-height: 1.02; margin: 18px 0 30px; }
-  .hero h1 .doing { font-style: italic; color: var(--st-thread); }
+  .hero h1 { font-size: clamp(52px, 7.6vw, 106px); font-weight: 400; letter-spacing: -0.035em; line-height: 1.02; margin: 18px 0 44px; }
+  /* "knowing" top left, "doing." lower right: the red thread runs between them */
+  .kd-k, .kd-d { display: block; width: fit-content; }
+  .kd-d { margin-left: auto; margin-top: clamp(64px, 12vh, 130px); font-style: italic; color: var(--st-thread); }
+  @media (max-width: 760px) { .kd-d { margin-top: clamp(150px, 24vh, 200px); } }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   .hero .lede { font-size: clamp(18px, 2vw, 21px); max-width: 600px; margin: 0 0 26px; }
   .hero .lede + .lede { margin-top: -18px; }
   .thread-word { color: var(--st-thread); }
@@ -229,14 +233,23 @@
   .js .on-scroll.shown { opacity: 1; transform: none; visibility: visible; transition: opacity .7s ease, transform .7s ease, visibility 0s; }
   @media (prefers-reduced-motion: reduce) { .js .on-scroll { transition: none; } }
 
-  /* The woven background (assets/brand/st-loom.js): faint lines behind the page, and the red thread */
-  #st-loom { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; overflow: visible; }
+  /* The woven background (assets/brand/st-loom.js): a static layer of faint lines, and the
+     red thread on a layer of its own that is redrawn as the page scrolls */
+  #st-loom, #st-thread { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; overflow: visible; }
+  #st-thread { will-change: transform; }
   #st-loom .stl-lines path { fill: none; stroke: rgba(22,25,29,0.07); stroke-width: 1; }
-  #st-loom .stl-thread { fill: none; stroke: var(--st-thread); stroke-width: 2; stroke-linejoin: round; }
-  #st-loom .stl-stop { fill: #C9CBCF; transition: fill .3s ease; }
-  #st-loom .stl-stop.on { fill: var(--st-thread); }
-  #st-loom .stl-tip { fill: var(--st-thread); }
-  @media print { #st-loom { display: none; } }
+  #st-thread .stl-thread { fill: none; stroke: var(--st-thread); stroke-width: 2; stroke-linejoin: round; }
+  #st-thread .stl-stop { fill: #C9CBCF; transition: fill .3s ease; }
+  #st-thread .stl-stop.on { fill: var(--st-thread); }
+  #st-thread .stl-node { fill: var(--st-paper); stroke: var(--st-thread); stroke-width: 2.4; }
+  #st-thread .stl-node-d, #st-thread .stl-node-d.on { fill: var(--st-thread); }
+  #st-thread .stl-node.on:not(.stl-node-d) { fill: var(--st-paper); }
+  #st-thread .stl-tip { fill: var(--st-thread); }
+  /* Key words the thread runs under; they take its colour as it reaches them */
+  .thread-mark { white-space: nowrap; transition: color .5s ease; }
+  .thread-mark.lit { color: var(--st-thread); }
+  html.st-measuring .reveal { transform: none !important; transition: none !important; }
+  @media print { #st-loom, #st-thread { display: none; } }
 
   /* ---------- Lead-in prose ---------- */
   .lead-in { max-width: 760px; }
@@ -350,7 +363,7 @@
   <section class="hero">
     <div class="wrap">
       <p class="mono">Architecture&nbsp;for&nbsp;learning</p>
-      <h1>From knowing<br>to <span class="doing">doing.</span></h1>
+      <h1 class="kd"><span class="sr-only">From </span><span class="kd-k" id="kd-knowing">knowing</span><span class="sr-only"> to </span><span class="kd-d" id="kd-doing">doing.</span></h1>
       <p class="lede">People are learning all the time! The hard part is making it show up in what they can actually do. Most programs get built one piece at a time, the pieces never connect, and no one can show anything changed.</p>
       <p class="lede on-scroll" id="red-thread-line">That's the <span class="thread-word">red thread</span> we design for.</p>
     </div>
@@ -359,10 +372,10 @@
   <!-- THE PROBLEM -->
   <section class="panel">
     <div class="wrap lead-in">
-      <h2>The problem isn't the teaching, delivery or content. It's that the pieces don't connect.</h2>
+      <h2>The problem isn't the teaching, delivery or content. It's that the <span class="thread-mark">pieces don't connect.</span></h2>
       <p>Organizations and institutions spend enormous resources on learning that never shows up where it counts. People go through the program, understand the idea, and then very little changes in what they can actually do.</p>
       <p>Learning gets built one piece at a time, by different people, for different reasons, and the pieces don't line up. What someone learns on Monday isn't reinforced by their manager, their tools, their other courses, or the way the work is structured, so it fades. And almost no one can show, with evidence, that any of it changed what people can do.</p>
-      <p>So it's really two problems: the pieces don't connect, and no one can prove they worked. Most teams treat both as something to sort out after the learning is already built.</p>
+      <p>So it's really two problems: the pieces don't connect, and <span class="thread-mark">no one can prove</span> they worked. Most teams treat both as something to sort out after the learning is already built.</p>
     </div>
   </section>
 
@@ -370,9 +383,9 @@
   <section class="follow-on">
     <div class="wrap lead-in">
       <h2>What is learning architecture</h2>
-      <p>Learning architecture is the deliberate design of how learning is structured and connected in context, so the pieces build on each other, line up with real goals, and show up in what people can actually <em>do</em>. It starts from a different question. Not "what should people know?" but "what do we need people to be able to do, and what has to be true for that to happen?"</p>
+      <p>Learning architecture is the deliberate design of how learning is structured and <span class="thread-mark">connected</span> in context, so the pieces build on each other, line up with real goals, and show up in what people can actually <em>do</em>. It starts from a different question. Not "what should people know?" but "what do we need people to be able to do, and what has to be true for that to happen?"</p>
       <p>That means designing across the things a single course can't control: whether people are motivated, what the people and systems around them reward or push back on, whether the work or the curriculum leaves room for the new way of doing things, and what gets measured, since what isn't measured rarely gets defended. It also means knowing where the old habits are anchored, and what it takes to shift them.</p>
-      <p>Get those right and the learning has somewhere to land, and you can show it landed. It's closer to strategy and systems design than to building a course. The goal is a real, visible change in what people can do.</p>
+      <p>Get those right and the learning has somewhere to land, and you can show it landed. It's closer to strategy and systems design than to building a course. The goal is a real, <span class="thread-mark">visible change</span> in what people can do.</p>
     </div>
   </section>
 
@@ -385,17 +398,17 @@
         <div class="card">
           <span class="mono ci">A</span>
           <h3>Corporate L&amp;D</h3>
-          <p>Heads of learning and capability who want a seat at the strategic table are tired of reporting completions that prove nothing. The pressure now is to show that training moves performance, and the business numbers tied to it. We connect what people learn to the capabilities the work actually demands, so it shows up on the job: in retention, leadership and productivity.</p>
+          <p>Heads of learning and capability who want a seat at the strategic table are tired of reporting completions that prove nothing. The pressure now is to show that training moves performance, and the business numbers tied to it. We connect what people learn to the capabilities the work actually demands, so it shows up <span class="thread-mark">on the job</span>: in retention, leadership and productivity.</p>
         </div>
         <div class="card">
           <span class="mono ci">B</span>
           <h3>EdTech Founders &amp; Investors</h3>
-          <p>Founders and the investors behind them, facing buyers who now want evidence of efficacy. Your dashboard may show usage, and that's a good first step; it doesn't prove learning happened. We build the layer that links what learners do to outcomes for users and customers you can measure and defend at renewal. This evidence turns adoption into proof the product works, at scale.</p>
+          <p>Founders and the investors behind them, facing buyers who now want evidence of efficacy. Your dashboard may show usage, and that's a good first step; it doesn't prove learning happened. We build the layer that links what learners do to outcomes for users and customers you can <span class="thread-mark">measure and defend</span> at renewal. This evidence turns adoption into proof the product works, at scale.</p>
         </div>
         <div class="card">
           <span class="mono ci">C</span>
           <h3>Universities &amp; Education leaders</h3>
-          <p>Provosts, deans, and faculty for whom keeping students now matters as much as recruiting them. Students disengage when a degree feels like a pile of disconnected credits with no through-line and no hopes of future application. We help design the coherence that links courses and experiences into real outcomes, the kind that support persistence, completion, and a degree that demonstrably leads somewhere - growth for the student and success for the institution.</p>
+          <p>Provosts, deans, and faculty for whom keeping students now matters as much as recruiting them. Students disengage when a degree feels like a pile of disconnected credits with no through-line and no hopes of future application. We help design the coherence that links courses and experiences into real outcomes, the kind that support persistence, completion, and a degree that demonstrably <span class="thread-mark">leads somewhere</span> - growth for the student and success for the institution.</p>
         </div>
       </div>
     </div>
@@ -405,7 +418,7 @@
   <section>
     <div class="wrap">
       <p class="mono index">How we work</p>
-      <div class="lead-in"><h2>Three ways in, depending on how far you want to go.</h2><p>Most people start small. The first conversation costs nothing and is useful on its own.</p></div>
+      <div class="lead-in"><h2>Three ways in, depending on how far you want to go.</h2><p>Most people start small. The first conversation <span class="thread-mark">costs nothing</span> and is useful on its own.</p></div>
       <div class="tiers">
         <div class="axis">
           <div class="stop free">
