@@ -38,11 +38,11 @@
           '</mask>' +
         '</defs>' +
         '<g fill="currentColor" mask="url(#' + over + ')">' +
-          '<rect x="14" y="20.5" width="72" height="11"/>' +
-          '<rect x="14" y="68.5" width="52" height="11"/>' +
+          '<rect class="st-line st-line-top" x="14" y="20.5" width="72" height="11"/>' +
+          '<rect class="st-line st-line-bottom" x="14" y="68.5" width="52" height="11"/>' +
         '</g>' +
-        '<rect x="36.5" y="6" width="7" height="88" style="fill:var(--st-thread,#C2412D)" mask="url(#' + under + ')"/>' +
-        '<rect x="14" y="44.5" width="72" height="11" fill="currentColor"/>' +
+        '<rect class="st-thread" x="36.5" y="6" width="7" height="88" style="fill:var(--st-thread,#C2412D)" mask="url(#' + under + ')"/>' +
+        '<rect class="st-line st-line-mid" x="14" y="44.5" width="72" height="11" fill="currentColor"/>' +
       '</svg>'
     );
   }

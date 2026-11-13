@@ -51,6 +51,28 @@
 <link rel="stylesheet" href="assets/brand/st-logo.css">
 <script src="assets/brand/st-logo.js" defer></script>
 
+<!-- Intro animation: decide before first paint whether it plays (once per session; ?intro forces it) -->
+<link rel="stylesheet" href="assets/brand/st-intro.css">
+<script>
+  (function () {
+    try {
+      var d = document.documentElement, force = /[?&]intro\b/.test(location.search), seen = false;
+      try { seen = !!sessionStorage.getItem('st-intro-seen'); } catch (e) {}
+      var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (force || (!seen && !calm && !location.hash)) {
+        d.classList.add('st-intro');
+        // Safety net: if the intro script never starts, show the site anyway.
+        setTimeout(function () {
+          if (window.stIntroStarted) return;
+          d.classList.remove('st-intro');
+          document.dispatchEvent(new Event('st-intro-done'));
+        }, 3000);
+      }
+    } catch (e) {}
+  })();
+</script>
+<script src="assets/brand/st-intro.js" defer></script>
+
 <!-- Structured data: helps search engines understand who Sharptext is -->
 <script type="application/ld+json">
 {
@@ -594,6 +616,7 @@
       dot.style.transition = 'opacity .6s ease'; dot.style.opacity = '0';
     }
 
+    function start() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       // Static state: one knowing, one doing, full route drawn.
       const ks = 0, ke = 6, route = buildRoute(ks,ke);
@@ -608,6 +631,13 @@
       placeLabel(lblK, ks); placeLabel(lblD, ke);
     } else {
       cycle();
+    }
+    }
+    // Hold the hero animation until the intro has handed over to the page.
+    if (document.documentElement.classList.contains('st-intro')) {
+      document.addEventListener('st-intro-done', start, { once: true });
+    } else {
+      start();
     }
   })();
 </script>
