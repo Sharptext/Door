@@ -74,6 +74,12 @@
       window.stIntroVariant = v;
       try { sessionStorage.setItem('st-intro-variant', v); } catch (e) {}
       var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // Hold the rest of the page back so the opening screen has the stage to itself
+      // (released by the script at the end of the page; a safety net releases it anyway).
+      if (!calm && !location.hash) {
+        d.classList.add('st-hold-rest');
+        setTimeout(function () { d.classList.remove('st-hold-rest'); }, 20000);
+      }
       if (m || (!seen && !calm && !location.hash)) {
         d.classList.add('st-intro');
         // Safety net: if the intro script never starts, show the site anyway.
@@ -240,6 +246,9 @@
 
   /* Revealed by scrolling: the closing line of the hero, then the header's call to action */
   .js .on-scroll { opacity: 0; transform: translateY(8px); visibility: hidden; transition: opacity .7s ease, transform .7s ease, visibility 0s linear .7s; }
+  html.st-hold-rest main > section:not(.hero),
+  html.st-hold-rest footer.site { opacity: 0; }
+  main > section:not(.hero), footer.site { transition: opacity 1.1s ease; }
   .js .on-scroll.shown { opacity: 1; transform: none; visibility: visible; transition: opacity .7s ease, transform .7s ease, visibility 0s; }
   @media (prefers-reduced-motion: reduce) { .js .on-scroll { transition: none; } }
 
@@ -529,12 +538,18 @@
     if (!line || !cta) return;
     let lineShown = false, shownAt = 0, shownY = 0;
     const show = (el) => el.classList.add('shown');
+    // The rest of the page appears 3 seconds after the closing line, or as soon as the visitor scrolls.
+    const releaseRest = () => document.documentElement.classList.remove('st-hold-rest');
     function showLine() {
       if (lineShown) return;
       lineShown = true; shownAt = performance.now(); shownY = window.scrollY;
       show(line);
+      setTimeout(releaseRest, 3000);
       window.addEventListener('scroll', onScroll, { passive: true });
     }
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 10 && !document.documentElement.classList.contains('st-intro')) releaseRest();
+    }, { passive: true });
     function onScroll() {
       if (performance.now() - shownAt > 900 && Math.abs(window.scrollY - shownY) > 40) {
         show(cta);
@@ -542,13 +557,13 @@
       }
     }
     const PAUSE = 1600;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { show(line); show(cta); return; }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { show(line); show(cta); releaseRest(); return; }
     if (document.documentElement.classList.contains('st-intro')) {
       document.addEventListener('st-intro-done', () => setTimeout(showLine, PAUSE), { once: true });
     } else {
       setTimeout(showLine, PAUSE);
     }
-    window.addEventListener('keydown', function (e) { if (e.key === 'Tab') { show(line); show(cta); } });
+    window.addEventListener('keydown', function (e) { if (e.key === 'Tab') { show(line); show(cta); releaseRest(); } });
     cta.addEventListener('focus', function () { show(line); show(cta); });
   })();
 </script>

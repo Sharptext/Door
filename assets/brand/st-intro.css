@@ -18,8 +18,6 @@ html.st-intro .hero h1 { transition: opacity .7s ease; }
 html.st-intro.st-intro-dim .hero h1 { opacity: .06; } /* while the logo forms in the middle */
 
 html.st-intro.st-intro-reveal header.site,
-html.st-intro.st-intro-reveal footer.site,
-html.st-intro.st-intro-reveal main > section:not(.hero),
 html.st-intro.st-intro-reveal .hero .lede:not(.on-scroll) { opacity: 1; transition: opacity .9s ease .15s; }
 
 #st-intro {
@@ -42,7 +40,7 @@ html.st-intro.st-intro-reveal .hero .lede:not(.on-scroll) { opacity: 1; transiti
 
 /* The logo that forms in the middle of the screen, and "Architecture for learning" beneath it */
 .sti-lockup { position: absolute; left: 0; top: 0; }
-.sti-lockup .st-logo { font-size: clamp(40px, 8vw, 100px); transform-origin: 0 0; }
+.sti-lockup .st-logo { font-size: clamp(52px, 8vw, 100px); transform-origin: 0 0; }
 .sti-lockup .st-logo__symbol { opacity: 0; }
 #st-intro.sti-symbol .sti-lockup .st-logo__symbol { opacity: 1; }
 .sti-lockup .st-logo__word { opacity: 0; transform: translateX(-.15em); transition: opacity .7s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
@@ -53,7 +51,7 @@ html.st-intro.st-intro-reveal .hero .lede:not(.on-scroll) { opacity: 1; transiti
   position: absolute; left: 0; top: 0; margin: 0;
   font-family: 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif;
   font-size: 13.5px; letter-spacing: .1em; text-transform: uppercase; color: #4A4F57; white-space: nowrap;
-  opacity: 0; transition: opacity .8s ease;
+  opacity: 0; transition: opacity .8s ease; transform-origin: 0 0;
 }
 #st-intro.sti-eyebrow-in .sti-eyebrow { opacity: 1; }
 #st-intro.sti-fly .sti-eyebrow { transition: transform 1s cubic-bezier(.65,0,.25,1); }
