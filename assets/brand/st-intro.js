@@ -143,13 +143,26 @@
   }
 
   // the logo, centred on screen, with "Architecture for learning" beneath it
+  // "Architecture for learning" is tucked right under the wordmark, aligned to its end,
+  // and sized to run from its "p" to the last letter.
   function placeLockup() {
     var lr = logo.getBoundingClientRect();
     var left = (W - lr.width) / 2, top = (window.innerHeight - lr.height) / 2 - 20;
     lock.style.left = left + 'px'; lock.style.top = top + 'px';
+    var word = logo.querySelector('.st-logo__word'), tn = word.firstChild;
+    word.style.transition = 'none'; word.style.transform = 'none';      // measure where it will settle
+    var wr = word.getBoundingClientRect();
+    var rg = document.createRange(); rg.setStart(tn, 4); rg.setEnd(tn, 5);  // the "p" of sharptext
+    var pr = rg.getBoundingClientRect();
+    word.style.transform = ''; word.getBoundingClientRect(); word.style.transition = '';
+    var fs = parseFloat(getComputedStyle(logo).fontSize);
+    eyebrow.style.fontSize = '13.5px';
+    var w0 = eyebrow.getBoundingClientRect().width;
+    var size = Math.max(9.5, Math.min(20, 13.5 * (wr.right - pr.left) / w0));
+    eyebrow.style.fontSize = size + 'px';
     var er = eyebrow.getBoundingClientRect();
-    eyebrow.style.left = (W - er.width) / 2 + 'px';
-    eyebrow.style.top = (top + lr.height + 22) + 'px';
+    eyebrow.style.left = (wr.right - er.width + .1 * size) + 'px';  // letter-spacing trails the last letter
+    eyebrow.style.top = (wr.bottom + fs * .1) + 'px';
   }
 
   // wait for the visitor (scroll, click, key, touch) or a few seconds; never less than a short pause
@@ -238,7 +251,7 @@
     html.classList.remove('st-intro-dim');
     html.classList.add('st-intro-reveal');
     logo.style.transform = 'translate(' + (b.left - a.left) + 'px,' + (b.top - a.top) + 'px) scale(' + (b.height / a.height) + ')';
-    eyebrow.style.transform = 'translate(' + (eb.left - ea.left) + 'px,' + (eb.top - ea.top) + 'px)';
+    eyebrow.style.transform = 'translate(' + (eb.left - ea.left) + 'px,' + (eb.top - ea.top) + 'px) scale(' + (eb.width / ea.width) + ')';
     await wait(1100);
     done();
   }
