@@ -59,7 +59,7 @@
 <link rel="stylesheet" href="assets/brand/st-intro.css">
 <script>
   (function () {
-    var DEFAULT_VARIANT = 'loom';
+    var DEFAULT_VARIANT = 'net-h';
     var VARIANTS = ['loom', 'warp', 'net-h', 'net-v'];
     try {
       var d = document.documentElement, m = /[?&]intro(?:=([a-z-]+))?(?:&|$)/.exec(location.search);
@@ -70,7 +70,7 @@
       if (asked && VARIANTS.indexOf(asked) > -1) v = asked;
       else if (m || !v) v = (asked === 'random') ? 'random' : DEFAULT_VARIANT;
       if (v === 'random') v = VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
-      if (VARIANTS.indexOf(v) < 0) v = 'loom';
+      if (VARIANTS.indexOf(v) < 0) v = DEFAULT_VARIANT;
       window.stIntroVariant = v;
       try { sessionStorage.setItem('st-intro-variant', v); } catch (e) {}
       var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;

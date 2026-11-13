@@ -33,7 +33,7 @@
   try { sessionStorage.setItem('st-intro-seen', '1'); } catch (e) {}
 
   var forced = /[?&]intro(=|&|$)/.test(location.search);
-  var variant = window.stIntroVariant || 'loom';
+  var variant = window.stIntroVariant || 'net-h';
   var type = window.stLoom.typeFor(variant), axis = window.stLoom.axisFor(variant);
   function track(name) {
     if (forced || window.top !== window.self || typeof window.gtag !== 'function') return;
